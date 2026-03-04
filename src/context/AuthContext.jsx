@@ -1,146 +1,123 @@
 import { createContext, useContext, useState, useEffect } from 'react'
+import { supabase } from '../lib/supabase'
 
-const AuthContext = createContext(null)
+const AuthContext = createContext({})
 
-// Mock user data
-const mockUser = {
-  id: 'user-001',
-  email: 'marie.dupont@email.com',
-  firstName: 'Marie',
-  lastName: 'Dupont',
-  phone: '+33 6 12 34 56 78',
-  avatar: null,
-  subscription: {
-    id: 'sub-001',
-    plan: 'premium',
-    status: 'active',
-    startDate: '2023-06-15',
-    nextBilling: '2024-02-15',
-    price: 69.90,
-    club: 'apex-paris-opera'
-  },
-  stats: {
-    totalWorkouts: 127,
-    thisMonth: 12,
-    streak: 8,
-    favoriteActivity: 'musculation'
-  },
-  preferences: {
-    notifications: true,
-    newsletter: true,
-    language: 'fr'
-  }
-}
+export const useAuth = () => useContext(AuthContext)
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [loading, setLoading] = useState(true)
 
-  // Check for existing session on mount
   useEffect(() => {
-    const checkAuth = async () => {
-      // Simulate checking auth status
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
-      // Check localStorage for session
-      const savedSession = localStorage.getItem('apex_session')
-      if (savedSession) {
-        setUser(mockUser)
-        setIsAuthenticated(true)
+    // Vérifier la session actuelle
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        fetchProfile(session.user.id, session.user.email)
+      } else {
+        setLoading(false)
       }
-      
-      setIsLoading(false)
-    }
-    
-    checkAuth()
+    })
+
+    // Écouter les changements d'authentification
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (session?.user) {
+          await fetchProfile(session.user.id, session.user.email)
+        } else {
+          setUser(null)
+          setLoading(false)
+        }
+      }
+    )
+
+    return () => subscription.unsubscribe()
   }, [])
 
-  const login = async (email, password) => {
-    setIsLoading(true)
-    
+  const fetchProfile = async (userId, email) => {
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // Mock validation
-      if (email && password) {
-        localStorage.setItem('apex_session', 'mock-session-token')
-        setUser(mockUser)
-        setIsAuthenticated(true)
-        return { success: true }
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single()
+
+      if (error) {
+        console.error('Error fetching profile:', error)
+        // Même si erreur, on définit un user basique pour permettre la connexion
+        setUser({ id: userId, email: email, first_name: '', last_name: '' })
+      } else {
+        setUser(data)
       }
-      
-      throw new Error('Email ou mot de passe incorrect')
     } catch (error) {
-      return { success: false, error: error.message }
+      console.error('Error:', error)
+      setUser({ id: userId, email: email })
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
-  const signup = async (userData) => {
-    setIsLoading(true)
-    
+  const signUp = async (email, password, firstName, lastName, phone) => {
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
-      const newUser = {
-        ...mockUser,
-        id: `user-${Date.now()}`,
-        email: userData.email,
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        phone: userData.phone,
-        subscription: null
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      })
+
+      if (error) throw error
+
+      if (data.user) {
+        // Créer le profil
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert([
+            {
+              id: data.user.id,
+              email,
+              first_name: firstName,
+              last_name: lastName,
+              phone,
+            }
+          ])
+
+        if (profileError) console.error('Profile error:', profileError)
       }
-      
-      localStorage.setItem('apex_session', 'mock-session-token')
-      setUser(newUser)
-      setIsAuthenticated(true)
-      
-      return { success: true, user: newUser }
-    } catch (error) {
-      return { success: false, error: error.message }
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
-  const logout = () => {
-    localStorage.removeItem('apex_session')
-    setUser(null)
-    setIsAuthenticated(false)
-  }
-
-  const updateProfile = async (updates) => {
-    setIsLoading(true)
-    
-    try {
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
-      setUser(prev => ({
-        ...prev,
-        ...updates
-      }))
-      
       return { success: true }
     } catch (error) {
       return { success: false, error: error.message }
-    } finally {
-      setIsLoading(false)
     }
+  }
+
+  const signIn = async (email, password) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+
+      if (error) throw error
+      return { success: true }
+    } catch (error) {
+      return { success: false, error: error.message }
+    }
+  }
+
+  const signOut = async () => {
+    await supabase.auth.signOut()
+    setUser(null)
   }
 
   const value = {
     user,
-    isLoading,
-    isAuthenticated,
-    login,
-    signup,
-    logout,
-    updateProfile
+    isAuthenticated: !!user,
+    loading,
+    signUp,
+    signIn,
+    signOut,
+    login: signIn,
+    logout: signOut,
+    register: signUp,
   }
 
   return (
@@ -149,13 +126,3 @@ export function AuthProvider({ children }) {
     </AuthContext.Provider>
   )
 }
-
-export function useAuth() {
-  const context = useContext(AuthContext)
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider')
-  }
-  return context
-}
-
-export default AuthContext

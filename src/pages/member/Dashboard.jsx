@@ -7,8 +7,19 @@ import Section from '../../components/ui/Section'
 import Badge from '../../components/ui/Badge'
 
 export default function Dashboard() {
-  const { user, isAuthenticated } = useAuth()
+  const { user, isAuthenticated, loading } = useAuth()
   const { getActiveReservations } = useBooking()
+
+  if (loading) {
+    return (
+      <Section>
+        <div className="container-custom text-center py-20">
+          <div className="animate-spin w-8 h-8 border-2 border-apex-500 border-t-transparent rounded-full mx-auto"></div>
+          <p className="text-carbon-400 mt-4">Chargement...</p>
+        </div>
+      </Section>
+    )
+  }
 
   if (!isAuthenticated) {
     return (
@@ -35,17 +46,17 @@ export default function Dashboard() {
         {/* Welcome */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <h1 className="font-display text-display-sm text-white mb-2">
-            Bonjour, {user?.firstName} 👋
+            Bonjour, {user?.first_name || user?.email} 👋
           </h1>
-          <p className="text-carbon-400">Bienvenue dans votre espace membre APEX</p>
+          <p className="text-carbon-400">Bienvenue dans votre espace membre Lif'itness</p>
         </motion.div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {[
-            { label: 'Séances ce mois', value: user?.stats?.thisMonth || 0, icon: Dumbbell },
-            { label: 'Série en cours', value: `${user?.stats?.streak || 0} jours`, icon: Clock },
-            { label: 'Total séances', value: user?.stats?.totalWorkouts || 0, icon: Calendar },
+            { label: 'Séances ce mois', value: 0, icon: Dumbbell },
+            { label: 'Série en cours', value: '0 jours', icon: Clock },
+            { label: 'Total séances', value: 0, icon: Calendar },
             { label: 'Réservations', value: activeReservations.length, icon: Calendar },
           ].map((stat, i) => (
             <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="card p-4">
@@ -76,56 +87,27 @@ export default function Dashboard() {
                 </Link>
               ))}
             </div>
-
-            {/* Next Reservations */}
-            {activeReservations.length > 0 && (
-              <div className="mt-8">
-                <h2 className="font-display text-xl text-white mb-4">Prochaines réservations</h2>
-                <div className="space-y-3">
-                  {activeReservations.slice(0, 3).map((res, i) => (
-                    <div key={i} className="card p-4 flex items-center justify-between">
-                      <div>
-                        <div className="font-medium text-white">{res.className}</div>
-                        <div className="text-sm text-carbon-400">{res.date} à {res.time}</div>
-                      </div>
-                      <Badge variant="success">Confirmé</Badge>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Subscription Card */}
           <div className="card p-6">
             <h2 className="font-display text-lg text-white mb-4">Mon abonnement</h2>
-            {user?.subscription ? (
-              <>
-                <Badge variant="apex" className="mb-3">{user.subscription.plan.toUpperCase()}</Badge>
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-carbon-400">Statut</span>
-                    <span className="text-success-400">Actif</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-carbon-400">Tarif</span>
-                    <span className="text-white">{user.subscription.price}€/mois</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-carbon-400">Prochain prélèvement</span>
-                    <span className="text-white">{user.subscription.nextBilling}</span>
-                  </div>
+            <div className="text-center py-4">
+              <Badge variant="apex" className="mb-3">{user?.subscription_type?.toUpperCase() || 'ESSENTIAL'}</Badge>
+              <div className="space-y-3 text-sm mt-4">
+                <div className="flex justify-between">
+                  <span className="text-carbon-400">Statut</span>
+                  <span className="text-success-400">{user?.subscription_status === 'active' ? 'Actif' : 'Inactif'}</span>
                 </div>
-                <Link to="/espace-membre/abonnement" className="btn-secondary w-full justify-center mt-4">
-                  Gérer <ArrowRight className="w-4 h-4" />
-                </Link>
-              </>
-            ) : (
-              <div className="text-center py-4">
-                <p className="text-carbon-400 mb-4">Aucun abonnement actif</p>
-                <Link to="/abonnements" className="btn-primary">Voir les offres</Link>
+                <div className="flex justify-between">
+                  <span className="text-carbon-400">Email</span>
+                  <span className="text-white">{user?.email}</span>
+                </div>
               </div>
-            )}
+              <Link to="/espace-membre/abonnement" className="btn-secondary w-full justify-center mt-4">
+                Gérer <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ArrowRight, ArrowLeft, Check, CreditCard, User, MapPin } from 'lucide-react'
 import Section from '../components/ui/Section'
@@ -7,12 +7,18 @@ import Input from '../components/ui/Input'
 import Button from '../components/ui/Button'
 import { subscriptions, clubs } from '../data/mockData'
 import { cn } from '../utils/helpers'
+import { useAuth } from '../context/AuthContext'
 
-const steps = ['Formule', 'Club', 'Compte', 'Paiement']
+const steps = ['Formule', 'Club', 'Compte', 'Confirmation']
 
 export default function Register() {
   const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
+  const { signUp } = useAuth()
   const [currentStep, setCurrentStep] = useState(0)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
   const [formData, setFormData] = useState({
     plan: searchParams.get('plan') || 'premium',
     club: searchParams.get('club') || '',
@@ -20,10 +26,61 @@ export default function Register() {
   })
 
   const selectedPlan = subscriptions.find(s => s.id === formData.plan)
+  const selectedClub = clubs.find(c => c.id === formData.club)
 
   const updateForm = (key, value) => setFormData(prev => ({ ...prev, [key]: value }))
   const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, steps.length - 1))
   const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 0))
+
+  const handleSubmit = async () => {
+    setLoading(true)
+    setError('')
+    
+    const result = await signUp(
+      formData.email, 
+      formData.password, 
+      formData.firstName, 
+      formData.lastName, 
+      formData.phone
+    )
+    
+    if (result.success) {
+      setSuccess(true)
+    } else {
+      setError(result.error)
+    }
+    setLoading(false)
+  }
+
+  if (success) {
+    return (
+      <Section className="min-h-screen flex items-center">
+        <div className="container-custom">
+          <div className="max-w-lg mx-auto text-center">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="card p-8">
+              <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Check className="w-8 h-8 text-green-500" />
+              </div>
+              <h2 className="font-display text-2xl text-white mb-4">Inscription réussie !</h2>
+              <p className="text-carbon-400 mb-6">
+                Un email de confirmation a été envoyé à <strong className="text-white">{formData.email}</strong>. 
+                Vérifiez votre boîte mail et cliquez sur le lien pour activer votre compte.
+              </p>
+              <div className="card bg-carbon-800/50 p-4 mb-6 text-left">
+                <h3 className="font-medium text-white mb-2">Récapitulatif</h3>
+                <p className="text-carbon-400 text-sm">Formule : <span className="text-white">{selectedPlan?.name}</span></p>
+                <p className="text-carbon-400 text-sm">Club : <span className="text-white">{selectedClub?.name}</span></p>
+                <p className="text-carbon-400 text-sm">Prix : <span className="text-apex-400">{selectedPlan?.price}€/mois</span></p>
+              </div>
+              <Link to="/connexion" className="btn-primary w-full justify-center">
+                Se connecter <ArrowRight className="w-4 h-4" />
+              </Link>
+            </motion.div>
+          </div>
+        </div>
+      </Section>
+    )
+  }
 
   return (
     <Section className="min-h-screen flex items-center">
@@ -109,27 +166,47 @@ export default function Register() {
               </motion.div>
             )}
 
-            {/* Step 4: Payment */}
+            {/* Step 4: Confirmation */}
             {currentStep === 3 && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <h2 className="font-display text-2xl text-white mb-6">Paiement</h2>
+                <h2 className="font-display text-2xl text-white mb-6">Confirmez votre inscription</h2>
+                
+                {error && (
+                  <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm mb-6">
+                    {error}
+                  </div>
+                )}
+
                 <div className="card bg-carbon-800/50 p-4 mb-6">
-                  <div className="flex justify-between mb-2">
-                    <span className="text-carbon-400">Formule {selectedPlan?.name}</span>
-                    <span className="text-white">{selectedPlan?.price}€/mois</span>
-                  </div>
-                  <div className="flex justify-between font-medium">
-                    <span className="text-white">Total aujourd'hui</span>
-                    <span className="text-apex-400">{selectedPlan?.price}€</span>
+                  <h3 className="font-medium text-white mb-3">Récapitulatif</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-carbon-400">Formule</span>
+                      <span className="text-white">{selectedPlan?.name}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-carbon-400">Club</span>
+                      <span className="text-white">{selectedClub?.name || 'Non sélectionné'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-carbon-400">Nom</span>
+                      <span className="text-white">{formData.firstName} {formData.lastName}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-carbon-400">Email</span>
+                      <span className="text-white">{formData.email}</span>
+                    </div>
+                    <div className="border-t border-carbon-700 my-3"></div>
+                    <div className="flex justify-between font-medium">
+                      <span className="text-white">Prix mensuel</span>
+                      <span className="text-apex-400">{selectedPlan?.price}€/mois</span>
+                    </div>
                   </div>
                 </div>
-                <div className="space-y-4">
-                  <Input label="Numéro de carte" placeholder="4242 4242 4242 4242" />
-                  <div className="grid grid-cols-2 gap-4">
-                    <Input label="Expiration" placeholder="MM/AA" />
-                    <Input label="CVC" placeholder="123" />
-                  </div>
-                </div>
+
+                <p className="text-carbon-400 text-sm mb-4">
+                  💳 Le paiement sera configuré après la validation de votre email.
+                </p>
               </motion.div>
             )}
 
@@ -143,7 +220,9 @@ export default function Register() {
               {currentStep < steps.length - 1 ? (
                 <Button onClick={nextStep}>Continuer <ArrowRight className="w-4 h-4" /></Button>
               ) : (
-                <Button><CreditCard className="w-4 h-4" /> Confirmer l'inscription</Button>
+                <Button onClick={handleSubmit} isLoading={loading}>
+                  <Check className="w-4 h-4" /> Confirmer l'inscription
+                </Button>
               )}
             </div>
           </div>

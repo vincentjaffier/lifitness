@@ -8,7 +8,7 @@ import Button from '../../components/ui/Button'
 
 export default function Login() {
   const navigate = useNavigate()
-  const { login, isLoading } = useAuth()
+  const { signIn, loading } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [formData, setFormData] = useState({ email: '', password: '' })
@@ -16,7 +16,7 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
-    const result = await login(formData.email, formData.password)
+    const result = await signIn(formData.email, formData.password)
     if (result.success) navigate('/espace-membre')
     else setError(result.error)
   }
@@ -38,7 +38,7 @@ export default function Login() {
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
-            <Button type="submit" isLoading={isLoading} className="w-full">Se connecter <ArrowRight className="w-4 h-4" /></Button>
+            <Button type="submit" isLoading={loading} className="w-full">Se connecter <ArrowRight className="w-4 h-4" /></Button>
           </form>
           <div className="mt-6 pt-6 border-t border-carbon-800 text-center">
             <p className="text-carbon-400">Pas encore membre ? <Link to="/inscription" className="text-apex-400 hover:underline">S'inscrire</Link></p>

@@ -8,16 +8,34 @@ import Button from '../../components/ui/Button'
 
 export default function Signup() {
   const navigate = useNavigate()
-  const { signup, isLoading } = useAuth()
+  const { signUp, loading } = useAuth()
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
   const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '', phone: '', password: '' })
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
-    const result = await signup(formData)
-    if (result.success) navigate('/inscription')
-    else setError(result.error)
+    const result = await signUp(formData.email, formData.password, formData.firstName, formData.lastName, formData.phone)
+    if (result.success) {
+      setSuccess(true)
+    } else {
+      setError(result.error)
+    }
+  }
+
+  if (success) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center py-12">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md px-4 text-center">
+          <div className="card p-8">
+            <h2 className="font-display text-2xl text-white mb-4">✅ Inscription réussie !</h2>
+            <p className="text-carbon-400 mb-6">Vérifiez votre email pour confirmer votre compte.</p>
+            <Link to="/connexion" className="btn-primary">Se connecter</Link>
+          </div>
+        </motion.div>
+      </div>
+    )
   }
 
   return (
@@ -25,7 +43,7 @@ export default function Signup() {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md px-4">
         <div className="text-center mb-8">
           <h1 className="font-display text-display-sm text-white mb-2">Créer un compte</h1>
-          <p className="text-carbon-400">Rejoignez APEX Fitness</p>
+          <p className="text-carbon-400">Rejoignez Lif'itness</p>
         </div>
         <div className="card p-6 md:p-8">
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -41,7 +59,7 @@ export default function Signup() {
               <input type="checkbox" className="checkbox mt-0.5" required />
               <span className="text-carbon-400">J'accepte les <Link to="/cgv" className="text-apex-400">CGV</Link> et la <Link to="/confidentialite" className="text-apex-400">politique de confidentialité</Link></span>
             </label>
-            <Button type="submit" isLoading={isLoading} className="w-full">Créer mon compte <ArrowRight className="w-4 h-4" /></Button>
+            <Button type="submit" isLoading={loading} className="w-full">Créer mon compte <ArrowRight className="w-4 h-4" /></Button>
           </form>
           <div className="mt-6 pt-6 border-t border-carbon-800 text-center">
             <p className="text-carbon-400">Déjà membre ? <Link to="/connexion" className="text-apex-400 hover:underline">Se connecter</Link></p>
