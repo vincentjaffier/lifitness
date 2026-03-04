@@ -1,0 +1,304 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   APEX FITNESS - Global Styles
+   Premium Dark Theme with Orange Accents
+   ============================================ */
+
+@layer base {
+  * {
+    @apply border-carbon-800;
+  }
+
+  html {
+    @apply scroll-smooth;
+    font-feature-settings: "cv11", "ss01";
+  }
+
+  body {
+    @apply bg-carbon-950 text-carbon-100 font-body;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-carbon-900;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-carbon-700 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-apex-500;
+  }
+
+  /* Selection */
+  ::selection {
+    @apply bg-apex-500/30 text-white;
+  }
+
+  /* Focus styles */
+  :focus-visible {
+    @apply outline-none ring-2 ring-apex-500 ring-offset-2 ring-offset-carbon-950;
+  }
+
+  /* Headings */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display text-white;
+  }
+}
+
+@layer components {
+  /* ============================================
+     BUTTONS
+     ============================================ */
+  
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 font-semibold 
+           transition-all duration-300 ease-out
+           focus:outline-none focus-visible:ring-2 focus-visible:ring-apex-500 
+           focus-visible:ring-offset-2 focus-visible:ring-offset-carbon-950
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply btn px-8 py-4 bg-gradient-apex text-white rounded-xl
+           hover:shadow-glow hover:scale-[1.02] active:scale-[0.98]
+           text-base tracking-wide uppercase;
+  }
+
+  .btn-secondary {
+    @apply btn px-8 py-4 bg-transparent text-white rounded-xl
+           border-2 border-carbon-600 
+           hover:border-apex-500 hover:text-apex-400
+           text-base tracking-wide uppercase;
+  }
+
+  .btn-ghost {
+    @apply btn px-6 py-3 bg-transparent text-carbon-300
+           hover:text-apex-400 hover:bg-carbon-900/50
+           rounded-lg text-sm;
+  }
+
+  .btn-icon {
+    @apply btn p-3 bg-carbon-800/50 rounded-full
+           hover:bg-apex-500/20 hover:text-apex-400;
+  }
+
+  .btn-sm {
+    @apply px-5 py-2.5 text-sm;
+  }
+
+  .btn-lg {
+    @apply px-10 py-5 text-lg;
+  }
+
+  /* ============================================
+     CARDS
+     ============================================ */
+  
+  .card {
+    @apply bg-gradient-card backdrop-blur-sm rounded-2xl 
+           border border-carbon-800/50 
+           transition-all duration-400 ease-out;
+  }
+
+  .card-hover {
+    @apply card hover:border-apex-500/30 hover:shadow-card-hover
+           hover:-translate-y-1;
+  }
+
+  .card-interactive {
+    @apply card-hover cursor-pointer
+           hover:bg-carbon-800/30;
+  }
+
+  /* ============================================
+     INPUTS & FORMS
+     ============================================ */
+  
+  .input {
+    @apply w-full px-5 py-4 bg-carbon-900/80 
+           border border-carbon-700 rounded-xl
+           text-white placeholder-carbon-500
+           transition-all duration-300
+           focus:border-apex-500 focus:ring-1 focus:ring-apex-500/50
+           focus:bg-carbon-900;
+  }
+
+  .input-error {
+    @apply border-red-500 focus:border-red-500 focus:ring-red-500/50;
+  }
+
+  .label {
+    @apply block text-sm font-medium text-carbon-300 mb-2;
+  }
+
+  .select {
+    @apply input appearance-none cursor-pointer
+           bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236d6d6d%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')]
+           bg-[length:1.5rem_1.5rem] bg-[right_1rem_center] bg-no-repeat
+           pr-12;
+  }
+
+  .checkbox {
+    @apply w-5 h-5 rounded bg-carbon-800 border-carbon-600
+           text-apex-500 focus:ring-apex-500 focus:ring-offset-carbon-950
+           cursor-pointer;
+  }
+
+  /* ============================================
+     BADGES & TAGS
+     ============================================ */
+  
+  .badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full
+           text-xs font-semibold uppercase tracking-wider;
+  }
+
+  .badge-apex {
+    @apply badge bg-apex-500/20 text-apex-400 border border-apex-500/30;
+  }
+
+  .badge-success {
+    @apply badge bg-success-500/20 text-success-400 border border-success-500/30;
+  }
+
+  .badge-warning {
+    @apply badge bg-warning-500/20 text-warning-400 border border-warning-500/30;
+  }
+
+  .badge-neutral {
+    @apply badge bg-carbon-700/50 text-carbon-300 border border-carbon-600;
+  }
+
+  /* ============================================
+     SECTIONS & CONTAINERS
+     ============================================ */
+  
+  .section {
+    @apply py-20 md:py-28 lg:py-32;
+  }
+
+  .section-sm {
+    @apply py-12 md:py-16 lg:py-20;
+  }
+
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .container-narrow {
+    @apply max-w-4xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* ============================================
+     TEXT STYLES
+     ============================================ */
+  
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-apex;
+  }
+
+  .section-title {
+    @apply font-display text-display-lg md:text-display-xl text-white mb-6;
+  }
+
+  .section-subtitle {
+    @apply text-lg md:text-xl text-carbon-400 max-w-2xl;
+  }
+
+  /* ============================================
+     DECORATIVE ELEMENTS
+     ============================================ */
+  
+  .divider {
+    @apply h-px bg-gradient-to-r from-transparent via-carbon-700 to-transparent;
+  }
+
+  .divider-apex {
+    @apply h-px bg-gradient-to-r from-transparent via-apex-500/50 to-transparent;
+  }
+
+  .glow-orb {
+    @apply absolute rounded-full blur-3xl opacity-30 pointer-events-none;
+  }
+
+  /* ============================================
+     ANIMATIONS
+     ============================================ */
+  
+  .animate-delay-100 { animation-delay: 100ms; }
+  .animate-delay-200 { animation-delay: 200ms; }
+  .animate-delay-300 { animation-delay: 300ms; }
+  .animate-delay-400 { animation-delay: 400ms; }
+  .animate-delay-500 { animation-delay: 500ms; }
+
+  /* ============================================
+     OVERLAYS
+     ============================================ */
+  
+  .overlay-dark {
+    @apply absolute inset-0 bg-gradient-to-b from-carbon-950/60 via-carbon-950/80 to-carbon-950;
+  }
+
+  .overlay-radial {
+    @apply absolute inset-0 bg-gradient-radial from-transparent via-carbon-950/50 to-carbon-950;
+  }
+
+  /* ============================================
+     NAVIGATION ACTIVE STATES
+     ============================================ */
+  
+  .nav-link {
+    @apply relative text-carbon-300 hover:text-white transition-colors duration-300;
+  }
+
+  .nav-link-active {
+    @apply text-apex-400;
+  }
+
+  .nav-link::after {
+    @apply content-[''] absolute -bottom-1 left-0 w-0 h-0.5 
+           bg-apex-500 transition-all duration-300;
+  }
+
+  .nav-link:hover::after,
+  .nav-link-active::after {
+    @apply w-full;
+  }
+}
+
+@layer utilities {
+  /* Hide scrollbar but keep functionality */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Aspect ratios */
+  .aspect-card {
+    aspect-ratio: 4/3;
+  }
+
+  .aspect-hero {
+    aspect-ratio: 16/9;
+  }
+
+  /* Text balance */
+  .text-balance {
+    text-wrap: balance;
+  }
+}
