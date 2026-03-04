@@ -13,48 +13,34 @@ export function AuthProvider({ children }) {
     // Vérifier la session actuelle
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
-        fetchProfile(session.user.id, session.user.email)
-      } else {
-        setLoading(false)
+        setUserFromSession(session.user)
       }
+      setLoading(false)
     })
 
     // Écouter les changements d'authentification
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         if (session?.user) {
-          await fetchProfile(session.user.id, session.user.email)
+          setUserFromSession(session.user)
         } else {
           setUser(null)
-          setLoading(false)
         }
+        setLoading(false)
       }
     )
 
     return () => subscription.unsubscribe()
   }, [])
 
-  const fetchProfile = async (userId, email) => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single()
-
-      if (error) {
-        console.error('Error fetching profile:', error)
-        // Même si erreur, on définit un user basique pour permettre la connexion
-        setUser({ id: userId, email: email, first_name: '', last_name: '' })
-      } else {
-        setUser(data)
-      }
-    } catch (error) {
-      console.error('Error:', error)
-      setUser({ id: userId, email: email })
-    } finally {
-      setLoading(false)
-    }
+  const setUserFromSession = (sessionUser) => {
+    setUser({
+      id: sessionUser.id,
+      email: sessionUser.email,
+      first_name: sessionUser.user_metadata?.first_name || '',
+      last_name: sessionUser.user_metadata?.last_name || '',
+      phone: sessionUser.user_metadata?.phone || '',
+    })
   }
 
   const signUp = async (email, password, firstName, lastName, phone) => {
@@ -62,27 +48,16 @@ export function AuthProvider({ children }) {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            first_name: firstName,
+            last_name: lastName,
+            phone: phone,
+          }
+        }
       })
 
       if (error) throw error
-
-      if (data.user) {
-        // Créer le profil
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert([
-            {
-              id: data.user.id,
-              email,
-              first_name: firstName,
-              last_name: lastName,
-              phone,
-            }
-          ])
-
-        if (profileError) console.error('Profile error:', profileError)
-      }
-
       return { success: true }
     } catch (error) {
       return { success: false, error: error.message }
