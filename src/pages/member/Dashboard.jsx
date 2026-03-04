@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useBooking } from '../../context/BookingContext'
 import Section from '../../components/ui/Section'
 import Badge from '../../components/ui/Badge'
+import QRCodeCard from '../../components/member/QRCodeCard'
 
 export default function Dashboard() {
   const { user, isAuthenticated, loading } = useAuth()
@@ -89,22 +90,20 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Subscription Card */}
+          {/* QR Code Card */}
+          <QRCodeCard user={user} />
+        </div>
+
+        {/* Subscription Card */}
+        <div className="mt-6">
           <div className="card p-6">
             <h2 className="font-display text-lg text-white mb-4">Mon abonnement</h2>
-            <div className="text-center py-4">
-              <Badge variant="apex" className="mb-3">{user?.subscription_type?.toUpperCase() || 'ESSENTIAL'}</Badge>
-              <div className="space-y-3 text-sm mt-4">
-                <div className="flex justify-between">
-                  <span className="text-carbon-400">Statut</span>
-                  <span className="text-success-400">{user?.subscription_status === 'active' ? 'Actif' : 'Inactif'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-carbon-400">Email</span>
-                  <span className="text-white">{user?.email}</span>
-                </div>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <Badge variant="apex">{user?.subscription_type?.toUpperCase() || 'ESSENTIAL'}</Badge>
+                <span className="text-success-400 text-sm">Actif</span>
               </div>
-              <Link to="/espace-membre/abonnement" className="btn-secondary w-full justify-center mt-4">
+              <Link to="/espace-membre/abonnement" className="btn-secondary justify-center">
                 Gérer <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
