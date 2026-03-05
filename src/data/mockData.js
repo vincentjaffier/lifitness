@@ -1,18 +1,18 @@
-// APEX FITNESS - Mock Data
+// LIF'ITNESS - Mock Data
 // Complete dataset for clubs, subscriptions, activities, etc.
 
 export const clubs = [
   {
-    id: 'apex-paris-opera',
-    slug: 'paris-opera',
-    name: 'APEX Opéra',
-    city: 'Paris',
-    district: '9ème',
-    address: '15 Boulevard des Capucines',
-    postalCode: '75009',
-    phone: '+33 1 42 68 00 00',
-    email: 'opera@apex-fitness.fr',
-    coordinates: { lat: 48.8708, lng: 2.3318 },
+    id: 'lifitness-almadies',
+    slug: 'almadies',
+    name: "LIF'ITNESS Almadies",
+    city: 'Dakar',
+    district: 'Almadies',
+    address: '15 Route des Almadies',
+    postalCode: '10700',
+    phone: '+221 33 820 00 00',
+    email: 'almadies@lifitness.fr',
+    coordinates: { lat: 14.7455, lng: -17.5219 },
     rating: 4.9,
     reviewCount: 487,
     isNew: false,
@@ -24,9 +24,9 @@ export const clubs = [
       sunday: '8h00 - 20h00'
     },
     images: [
-      '/images/clubs/paris-opera-1.jpg',
-      '/images/clubs/paris-opera-2.jpg',
-      '/images/clubs/paris-opera-3.jpg'
+      '/images/clubs/almadies-1.jpg',
+      '/images/clubs/almadies-2.jpg',
+      '/images/clubs/almadies-3.jpg'
     ],
     amenities: [
       'musculation',
@@ -42,25 +42,25 @@ export const clubs = [
       'vestiaires-premium',
       'espace-femmes'
     ],
-    description: 'Notre club flagship au cœur de Paris. Un espace de 2500m² dédié à votre transformation physique, avec les équipements les plus performants du marché.',
+    description: "Notre club flagship aux Almadies. Un espace de 2500m² dédié à votre transformation physique, avec les équipements les plus performants du marché.",
     highlights: [
       'Piscine intérieure chauffée',
       'Espace wellness complet',
-      'Rooftop training en été',
+      'Rooftop training',
       'Conciergerie fitness'
     ]
   },
   {
-    id: 'apex-paris-marais',
-    slug: 'paris-marais',
-    name: 'APEX Marais',
-    city: 'Paris',
-    district: '4ème',
-    address: '42 Rue de Rivoli',
-    postalCode: '75004',
-    phone: '+33 1 42 72 00 00',
-    email: 'marais@apex-fitness.fr',
-    coordinates: { lat: 48.8566, lng: 2.3522 },
+    id: 'lifitness-sacre-coeur',
+    slug: 'sacre-coeur',
+    name: "LIF'ITNESS Sacré Coeur",
+    city: 'Dakar',
+    district: 'Sacré Coeur',
+    address: '42 Rue de la Corniche',
+    postalCode: '10200',
+    phone: '+221 33 821 00 00',
+    email: 'sacrecoeur@lifitness.fr',
+    coordinates: { lat: 14.7200, lng: -17.4833 },
     rating: 4.8,
     reviewCount: 356,
     isNew: false,
@@ -72,8 +72,8 @@ export const clubs = [
       sunday: '8h00 - 20h00'
     },
     images: [
-      '/images/clubs/paris-marais-1.jpg',
-      '/images/clubs/paris-marais-2.jpg'
+      '/images/clubs/sacre-coeur-1.jpg',
+      '/images/clubs/sacre-coeur-2.jpg'
     ],
     amenities: [
       'musculation',
@@ -84,252 +84,11 @@ export const clubs = [
       'coaching',
       'vestiaires-premium'
     ],
-    description: 'Un club intimiste au cœur du Marais historique. Architecture voûtée préservée, ambiance exclusive.',
+    description: "Un club intimiste au cœur de Sacré Coeur. Ambiance exclusive et équipements haut de gamme.",
     highlights: [
-      'Architecture historique unique',
+      'Architecture moderne unique',
       'Yoga studio dédié',
       'Coaching nutritionnel inclus'
-    ]
-  },
-  {
-    id: 'apex-lyon-confluence',
-    slug: 'lyon-confluence',
-    name: 'APEX Confluence',
-    city: 'Lyon',
-    district: '2ème',
-    address: '86 Quai Perrache',
-    postalCode: '69002',
-    phone: '+33 4 72 40 00 00',
-    email: 'confluence@apex-fitness.fr',
-    coordinates: { lat: 45.7485, lng: 4.8188 },
-    rating: 4.9,
-    reviewCount: 289,
-    isNew: true,
-    isPremium: true,
-    surface: 2200,
-    openingHours: {
-      weekdays: '6h00 - 23h00',
-      saturday: '7h00 - 22h00',
-      sunday: '8h00 - 20h00'
-    },
-    images: [
-      '/images/clubs/lyon-confluence-1.jpg',
-      '/images/clubs/lyon-confluence-2.jpg'
-    ],
-    amenities: [
-      'musculation',
-      'cardio',
-      'crossfit',
-      'boxing',
-      'sauna',
-      'hammam',
-      'coaching',
-      'parking',
-      'vestiaires-premium'
-    ],
-    description: 'Notre dernière ouverture au cœur du quartier Confluence. Design contemporain, équipements dernière génération.',
-    highlights: [
-      'Ouverture 2024',
-      'Vue sur Saône',
-      'Zone HYROX officielle'
-    ]
-  },
-  {
-    id: 'apex-bordeaux-chartrons',
-    slug: 'bordeaux-chartrons',
-    name: 'APEX Chartrons',
-    city: 'Bordeaux',
-    district: 'Chartrons',
-    address: '28 Rue Notre Dame',
-    postalCode: '33000',
-    phone: '+33 5 56 00 00 00',
-    email: 'chartrons@apex-fitness.fr',
-    coordinates: { lat: 44.8510, lng: -0.5696 },
-    rating: 4.7,
-    reviewCount: 198,
-    isNew: false,
-    isPremium: false,
-    surface: 1500,
-    openingHours: {
-      weekdays: '6h00 - 22h30',
-      saturday: '7h00 - 21h00',
-      sunday: '8h00 - 19h00'
-    },
-    images: [
-      '/images/clubs/bordeaux-chartrons-1.jpg'
-    ],
-    amenities: [
-      'musculation',
-      'cardio',
-      'crossfit',
-      'coaching',
-      'vestiaires-premium'
-    ],
-    description: 'Au cœur du quartier tendance des Chartrons, un club à taille humaine pour une expérience premium personnalisée.',
-    highlights: [
-      'Ambiance intimiste',
-      'Quartier dynamique',
-      'Coaching personnalisé'
-    ]
-  },
-  {
-    id: 'apex-marseille-vieux-port',
-    slug: 'marseille-vieux-port',
-    name: 'APEX Vieux-Port',
-    city: 'Marseille',
-    district: '1er',
-    address: '12 Quai du Port',
-    postalCode: '13001',
-    phone: '+33 4 91 00 00 00',
-    email: 'vieuxport@apex-fitness.fr',
-    coordinates: { lat: 43.2965, lng: 5.3698 },
-    rating: 4.8,
-    reviewCount: 267,
-    isNew: false,
-    isPremium: true,
-    surface: 1900,
-    openingHours: {
-      weekdays: '6h00 - 23h00',
-      saturday: '7h00 - 22h00',
-      sunday: '8h00 - 20h00'
-    },
-    images: [
-      '/images/clubs/marseille-vieux-port-1.jpg'
-    ],
-    amenities: [
-      'musculation',
-      'cardio',
-      'crossfit',
-      'boxing',
-      'sauna',
-      'coaching',
-      'parking'
-    ],
-    description: 'Face au Vieux-Port, un club qui capture l\'énergie méditerranéenne. Terrasse extérieure pour l\'entraînement en plein air.',
-    highlights: [
-      'Vue mer panoramique',
-      'Terrasse training',
-      'Zone outdoor'
-    ]
-  },
-  {
-    id: 'apex-nice-promenade',
-    slug: 'nice-promenade',
-    name: 'APEX Promenade',
-    city: 'Nice',
-    district: 'Promenade des Anglais',
-    address: '3 Promenade des Anglais',
-    postalCode: '06000',
-    phone: '+33 4 93 00 00 00',
-    email: 'promenade@apex-fitness.fr',
-    coordinates: { lat: 43.6947, lng: 7.2653 },
-    rating: 4.9,
-    reviewCount: 312,
-    isNew: false,
-    isPremium: true,
-    surface: 2100,
-    openingHours: {
-      weekdays: '6h00 - 23h00',
-      saturday: '7h00 - 22h00',
-      sunday: '7h00 - 21h00'
-    },
-    images: [
-      '/images/clubs/nice-promenade-1.jpg'
-    ],
-    amenities: [
-      'musculation',
-      'cardio',
-      'crossfit',
-      'yoga',
-      'spa',
-      'sauna',
-      'coaching',
-      'parking',
-      'vestiaires-premium'
-    ],
-    description: 'Le joyau de la Côte d\'Azur. Entraînez-vous face à la mer Méditerranée dans notre club le plus ensoleillé.',
-    highlights: [
-      'Vue mer à 180°',
-      'Rooftop yoga',
-      'Spa méditerranéen'
-    ]
-  },
-  {
-    id: 'apex-toulouse-capitole',
-    slug: 'toulouse-capitole',
-    name: 'APEX Capitole',
-    city: 'Toulouse',
-    district: 'Centre',
-    address: '8 Place du Capitole',
-    postalCode: '31000',
-    phone: '+33 5 61 00 00 00',
-    email: 'capitole@apex-fitness.fr',
-    coordinates: { lat: 43.6045, lng: 1.4440 },
-    rating: 4.7,
-    reviewCount: 234,
-    isNew: false,
-    isPremium: false,
-    surface: 1600,
-    openingHours: {
-      weekdays: '6h00 - 22h30',
-      saturday: '7h00 - 21h00',
-      sunday: '8h00 - 19h00'
-    },
-    images: [
-      '/images/clubs/toulouse-capitole-1.jpg'
-    ],
-    amenities: [
-      'musculation',
-      'cardio',
-      'crossfit',
-      'boxing',
-      'coaching'
-    ],
-    description: 'En plein cœur de la ville rose, un club dynamique pour les sportifs exigeants.',
-    highlights: [
-      'Emplacement central',
-      'Zone boxing XXL',
-      'Communauté active'
-    ]
-  },
-  {
-    id: 'apex-lille-grand-place',
-    slug: 'lille-grand-place',
-    name: 'APEX Grand\'Place',
-    city: 'Lille',
-    district: 'Centre',
-    address: '22 Rue de la Grande Chaussée',
-    postalCode: '59000',
-    phone: '+33 3 20 00 00 00',
-    email: 'grandplace@apex-fitness.fr',
-    coordinates: { lat: 50.6365, lng: 3.0635 },
-    rating: 4.8,
-    reviewCount: 189,
-    isNew: true,
-    isPremium: true,
-    surface: 1700,
-    openingHours: {
-      weekdays: '6h00 - 23h00',
-      saturday: '7h00 - 22h00',
-      sunday: '8h00 - 20h00'
-    },
-    images: [
-      '/images/clubs/lille-grand-place-1.jpg'
-    ],
-    amenities: [
-      'musculation',
-      'cardio',
-      'crossfit',
-      'sauna',
-      'hammam',
-      'coaching',
-      'vestiaires-premium'
-    ],
-    description: 'Notre nouvelle adresse lilloise au cœur du Vieux-Lille. Architecture flamande, équipements d\'exception.',
-    highlights: [
-      'Ouverture 2024',
-      'Bâtiment historique rénové',
-      'Hammam traditionnel'
     ]
   }
 ]
@@ -338,7 +97,7 @@ export const subscriptions = [
   {
     id: 'essential',
     name: 'Essential',
-    tagline: 'L\'essentiel pour bien démarrer',
+    tagline: "L'essentiel pour bien démarrer",
     price: 39.90,
     priceAnnual: 29.90,
     commitment: 'Sans engagement',
@@ -359,15 +118,15 @@ export const subscriptions = [
   {
     id: 'premium',
     name: 'Premium',
-    tagline: 'L\'expérience complète',
+    tagline: "L'expérience complète",
     price: 69.90,
     priceAnnual: 54.90,
     commitment: 'Sans engagement',
     popular: true,
     features: [
-      { name: 'Accès à tous les clubs France', included: true },
+      { name: 'Accès à tous les clubs', included: true },
       { name: 'Horaires illimités 6h-23h', included: true },
-      { name: 'Tous les espaces d\'entraînement', included: true },
+      { name: "Tous les espaces d'entraînement", included: true },
       { name: 'Vestiaires premium', included: true },
       { name: 'Application mobile', included: true },
       { name: 'Cours collectifs illimités', included: true },
@@ -386,9 +145,9 @@ export const subscriptions = [
     commitment: 'Sans engagement',
     popular: false,
     features: [
-      { name: 'Accès à tous les clubs France', included: true },
+      { name: 'Accès à tous les clubs', included: true },
       { name: 'Horaires étendus 5h-minuit', included: true },
-      { name: 'Tous les espaces d\'entraînement', included: true },
+      { name: "Tous les espaces d'entraînement", included: true },
       { name: 'Vestiaires VIP avec casier personnel', included: true },
       { name: 'Application mobile + conciergerie', included: true },
       { name: 'Cours collectifs illimités + priority booking', included: true },
@@ -544,7 +303,7 @@ export const activities = [
 export const classes = [
   {
     id: 'class-1',
-    name: 'APEX BURN',
+    name: 'LIF BURN',
     activity: 'cardio',
     duration: 45,
     intensity: 'high',
@@ -566,7 +325,7 @@ export const classes = [
   },
   {
     id: 'class-3',
-    name: 'APEX WOD',
+    name: 'LIF WOD',
     activity: 'crossfit',
     duration: 50,
     intensity: 'extreme',
@@ -614,11 +373,11 @@ export const testimonials = [
   {
     id: 1,
     name: 'Marie Dupont',
-    role: 'Membre Elite depuis 2022',
+    role: "Membre Elite depuis 2022",
     avatar: '/images/testimonials/marie.jpg',
-    club: 'APEX Opéra',
+    club: "LIF'ITNESS Almadies",
     rating: 5,
-    text: 'APEX a complètement transformé ma vision du fitness. L\'ambiance, les équipements, les coachs... Tout est au niveau d\'excellence qu\'on attend d\'un club premium. Je ne pourrais plus revenir en arrière.',
+    text: "LIF'ITNESS a complètement transformé ma vision du fitness. L'ambiance, les équipements, les coachs... Tout est au niveau d'excellence qu'on attend d'un club premium. Je ne pourrais plus revenir en arrière.",
     transformation: {
       before: 'Sédentaire, 15kg en trop',
       after: '-15kg, marathon finisher'
@@ -629,11 +388,11 @@ export const testimonials = [
     name: 'Thomas Martin',
     role: 'Membre Premium depuis 2021',
     avatar: '/images/testimonials/thomas.jpg',
-    club: 'APEX Confluence',
+    club: "LIF'ITNESS Sacré Coeur",
     rating: 5,
-    text: 'En tant qu\'entrepreneur, mon temps est précieux. APEX me permet de m\'entraîner efficacement avec un coaching de qualité. Le club de Lyon est exceptionnel.',
+    text: "En tant qu'entrepreneur, mon temps est précieux. LIF'ITNESS me permet de m'entraîner efficacement avec un coaching de qualité.",
     transformation: {
-      before: 'Stressé, manque d\'énergie',
+      before: "Stressé, manque d'énergie",
       after: '+10kg de muscle, énergie au top'
     }
   },
@@ -642,9 +401,9 @@ export const testimonials = [
     name: 'Sophie Laurent',
     role: 'Membre Elite depuis 2023',
     avatar: '/images/testimonials/sophie.jpg',
-    club: 'APEX Marais',
+    club: "LIF'ITNESS Almadies",
     rating: 5,
-    text: 'L\'espace femmes et les cours de yoga m\'ont conquise. Je me sens en sécurité et motivée à chaque séance. Une vraie communauté bienveillante.',
+    text: "L'espace femmes et les cours de yoga m'ont conquise. Je me sens en sécurité et motivée à chaque séance. Une vraie communauté bienveillante.",
     transformation: {
       before: 'Anxieuse, mal dans sa peau',
       after: 'Confiante, flexible, sereine'
@@ -669,7 +428,7 @@ export const blogPosts = [
     id: 2,
     slug: 'nutrition-prise-masse',
     title: 'Nutrition : Les Clés de la Prise de Masse',
-    excerpt: 'Macros, timing, suppléments... Optimisez votre alimentation pour gagner du muscle.',
+    excerpt: "Macros, timing, suppléments... Optimisez votre alimentation pour gagner du muscle.",
     category: 'Nutrition',
     author: 'Dr. Claire N.',
     date: '2024-01-10',
@@ -681,7 +440,7 @@ export const blogPosts = [
     id: 3,
     slug: 'hyrox-preparation',
     title: 'HYROX : Comment Se Préparer Pour Sa Première Compétition',
-    excerpt: 'Programme d\'entraînement complet pour performer lors de votre premier HYROX.',
+    excerpt: "Programme d'entraînement complet pour performer lors de votre premier HYROX.",
     category: 'Competition',
     author: 'Coach Alex',
     date: '2024-01-05',
@@ -692,8 +451,8 @@ export const blogPosts = [
   {
     id: 4,
     slug: 'recuperation-importance',
-    title: 'L\'Importance de la Récupération dans la Performance',
-    excerpt: 'Sommeil, nutrition post-workout, stretching : ne négligez plus votre récupération.',
+    title: "L'Importance de la Récupération dans la Performance",
+    excerpt: "Sommeil, nutrition post-workout, stretching : ne négligez plus votre récupération.",
     category: 'Wellness',
     author: 'Dr. Marc R.',
     date: '2024-01-02',
@@ -708,16 +467,16 @@ export const faqItems = [
     category: 'Abonnements',
     questions: [
       {
-        q: 'Puis-je changer d\'abonnement en cours de contrat ?',
-        a: 'Oui, vous pouvez upgrader votre abonnement à tout moment. Le changement prend effet immédiatement et la différence de prix est calculée au prorata. Pour un downgrade, il faudra attendre la fin de votre période d\'engagement.'
+        q: "Puis-je changer d'abonnement en cours de contrat ?",
+        a: "Oui, vous pouvez upgrader votre abonnement à tout moment. Le changement prend effet immédiatement et la différence de prix est calculée au prorata. Pour un downgrade, il faudra attendre la fin de votre période d'engagement."
       },
       {
-        q: 'Y a-t-il des frais d\'inscription ?',
-        a: 'Nous proposons régulièrement des offres sans frais d\'inscription. En période standard, les frais sont de 49€ et incluent votre kit de bienvenue APEX (serviette, gourde, sac).'
+        q: "Y a-t-il des frais d'inscription ?",
+        a: "Nous proposons régulièrement des offres sans frais d'inscription. En période standard, les frais sont de 49€ et incluent votre kit de bienvenue LIF'ITNESS (serviette, gourde, sac)."
       },
       {
-        q: 'Comment fonctionne l\'engagement ?',
-        a: 'Nos formules sont disponibles avec ou sans engagement. Sans engagement, vous pouvez résilier avec un préavis de 30 jours. Avec engagement 12 mois, vous bénéficiez de tarifs préférentiels.'
+        q: "Comment fonctionne l'engagement ?",
+        a: "Nos formules sont disponibles avec ou sans engagement. Sans engagement, vous pouvez résilier avec un préavis de 30 jours. Avec engagement 12 mois, vous bénéficiez de tarifs préférentiels."
       }
     ]
   },
@@ -730,11 +489,11 @@ export const faqItems = [
       },
       {
         q: 'Puis-je accéder à plusieurs clubs ?',
-        a: 'Les abonnements Premium et Elite donnent accès à l\'ensemble de nos clubs en France. L\'abonnement Essential est limité à un club de votre choix.'
+        a: "Les abonnements Premium et Elite donnent accès à l'ensemble de nos clubs. L'abonnement Essential est limité à un club de votre choix."
       },
       {
-        q: 'Comment fonctionne l\'accès au club ?',
-        a: 'L\'accès se fait via notre application mobile ou votre carte membre. Scannez simplement le QR code à l\'entrée du club.'
+        q: "Comment fonctionne l'accès au club ?",
+        a: "L'accès se fait via notre application mobile ou votre carte membre. Scannez simplement le QR code à l'entrée du club."
       }
     ]
   },
@@ -743,15 +502,15 @@ export const faqItems = [
     questions: [
       {
         q: 'Comment réserver un cours collectif ?',
-        a: 'Les réservations se font via notre application mobile ou votre espace membre en ligne. Les cours sont disponibles à la réservation jusqu\'à 7 jours à l\'avance.'
+        a: "Les réservations se font via notre application mobile ou votre espace membre en ligne. Les cours sont disponibles à la réservation jusqu'à 7 jours à l'avance."
       },
       {
-        q: 'Que se passe-t-il si un cours est complet ?',
-        a: 'Vous pouvez vous inscrire sur liste d\'attente. Vous serez automatiquement notifié si une place se libère.'
+        q: "Que se passe-t-il si un cours est complet ?",
+        a: "Vous pouvez vous inscrire sur liste d'attente. Vous serez automatiquement notifié si une place se libère."
       },
       {
         q: 'Puis-je annuler une réservation ?',
-        a: 'Oui, jusqu\'à 4 heures avant le début du cours sans pénalité. Les annulations tardives répétées peuvent entraîner une suspension temporaire du droit de réservation.'
+        a: "Oui, jusqu'à 4 heures avant le début du cours sans pénalité. Les annulations tardives répétées peuvent entraîner une suspension temporaire du droit de réservation."
       }
     ]
   },
@@ -760,11 +519,11 @@ export const faqItems = [
     questions: [
       {
         q: 'Comment fonctionne le coaching personnalisé ?',
-        a: 'Nos coachs certifiés établissent avec vous un programme sur mesure basé sur vos objectifs. Les séances peuvent être ponctuelles ou régulières selon vos besoins.'
+        a: "Nos coachs certifiés établissent avec vous un programme sur mesure basé sur vos objectifs. Les séances peuvent être ponctuelles ou régulières selon vos besoins."
       },
       {
         q: 'Le coaching est-il inclus dans mon abonnement ?',
-        a: 'Les membres Premium bénéficient d\'une séance de coaching par mois. Les membres Elite ont un accès illimité au coaching. Pour Essential, le coaching est en option.'
+        a: "Les membres Premium bénéficient d'une séance de coaching par mois. Les membres Elite ont un accès illimité au coaching. Pour Essential, le coaching est en option."
       }
     ]
   }
@@ -787,11 +546,5 @@ export const amenitiesInfo = {
 }
 
 export const cities = [
-  { name: 'Paris', count: 2, slug: 'paris' },
-  { name: 'Lyon', count: 1, slug: 'lyon' },
-  { name: 'Bordeaux', count: 1, slug: 'bordeaux' },
-  { name: 'Marseille', count: 1, slug: 'marseille' },
-  { name: 'Nice', count: 1, slug: 'nice' },
-  { name: 'Toulouse', count: 1, slug: 'toulouse' },
-  { name: 'Lille', count: 1, slug: 'lille' }
+  { name: 'Dakar', count: 2, slug: 'dakar' }
 ]
