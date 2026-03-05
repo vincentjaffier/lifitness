@@ -10,19 +10,49 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Vérifier la session actuelle
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
-        setUserFromSession(session.user)
+        fetchAndSetUser(session.user)
       }
       setLoading(false)
     })
 
-    // Écouter les changements d'authentification
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         if (session?.user) {
-          setUserFromSession(session.user)
+          await fetchAndSetUser(session.user)
+    
+          // Si c'est une première connexion et qu'une photo est en attente
+          if (event === 'SIGNED_IN') {
+            const pendingAvatar = localStorage.getItem('pending_avatar')
+            if (pendingAvatar) {
+              // Convertir le base64 en fichier
+              const res = await fetch(pendingAvatar)
+              const blob = await res.blob()
+              const fileName = `${session.user.id}.jpg`
+    
+              const { error } = await supabase.storage
+                .from('avatars')
+                .upload(fileName, blob, { upsert: true })
+    
+              if (!error) {
+                const { data: { publicUrl } } = supabase.storage
+                  .from('avatars')
+                  .getPublicUrl(fileName)
+    
+                await supabase
+                  .from('profiles')
+                  .update({ avatar_url: publicUrl })
+                  .eq('id', session.user.id)
+    
+                // Nettoyer le localStorage
+                localStorage.removeItem('pending_avatar')
+    
+                // Resynchroniser le contexte avec la nouvelle photo
+                await fetchAndSetUser(session.user)
+              }
+            }
+          }
         } else {
           setUser(null)
         }
@@ -33,19 +63,33 @@ export function AuthProvider({ children }) {
     return () => subscription.unsubscribe()
   }, [])
 
-  const setUserFromSession = (sessionUser) => {
-    setUser({
+  const fetchAndSetUser = async (sessionUser) => {
+    const base = {
       id: sessionUser.id,
       email: sessionUser.email,
       first_name: sessionUser.user_metadata?.first_name || '',
       last_name: sessionUser.user_metadata?.last_name || '',
       phone: sessionUser.user_metadata?.phone || '',
-    })
+      avatar_url: null,
+    }
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('first_name, last_name, phone, avatar_url')
+      .eq('id', sessionUser.id)
+      .single()
+
+    setUser({ ...base, ...(profile ?? {}) })
+  }
+
+  const refreshUser = async () => {
+    const { data: { user: sessionUser } } = await supabase.auth.getUser()
+    if (sessionUser) await fetchAndSetUser(sessionUser)
   }
 
   const signUp = async (email, password, firstName, lastName, phone) => {
     try {
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -56,7 +100,6 @@ export function AuthProvider({ children }) {
           }
         }
       })
-
       if (error) throw error
       return { success: true }
     } catch (error) {
@@ -66,11 +109,10 @@ export function AuthProvider({ children }) {
 
   const signIn = async (email, password) => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
-
       if (error) throw error
       return { success: true }
     } catch (error) {
@@ -90,6 +132,7 @@ export function AuthProvider({ children }) {
     signUp,
     signIn,
     signOut,
+    refreshUser,
     login: signIn,
     logout: signOut,
     register: signUp,

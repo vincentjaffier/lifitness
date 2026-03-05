@@ -41,6 +41,7 @@ import AdminMembers from './pages/admin/AdminMembers'
 import AdminContacts from './pages/admin/AdminContacts'
 import AdminPromotions from './pages/admin/AdminPromotions'
 import AdminStats from './pages/admin/AdminStats'
+import ScanQR from './pages/admin/ScanQR'
 
 function App() {
   return (
@@ -85,6 +86,7 @@ function App() {
                 ADMIN ROUTES (Administrateurs)
                 ================================ */}
             <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin/scan" element={<ScanQR />} />
             <Route
               path="/admin"
               element={

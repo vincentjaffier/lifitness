@@ -1,13 +1,14 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ArrowRight, ArrowLeft, Check, CreditCard, User, MapPin } from 'lucide-react'
+import { ArrowRight, ArrowLeft, Check, CreditCard, User, MapPin, Camera, Upload } from 'lucide-react'
 import Section from '../components/ui/Section'
 import Input from '../components/ui/Input'
 import Button from '../components/ui/Button'
 import { subscriptions, clubs } from '../data/mockData'
 import { cn } from '../utils/helpers'
 import { useAuth } from '../context/AuthContext'
+import { supabase } from '../lib/supabase'
 
 const steps = ['Formule', 'Club', 'Compte', 'Confirmation']
 
@@ -19,6 +20,9 @@ export default function Register() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [avatarFile, setAvatarFile] = useState(null)
+  const [avatarPreview, setAvatarPreview] = useState(null)
+  const fileInputRef = useRef(null)
   const [formData, setFormData] = useState({
     plan: searchParams.get('plan') || 'premium',
     club: searchParams.get('club') || '',
@@ -32,23 +36,43 @@ export default function Register() {
   const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, steps.length - 1))
   const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 0))
 
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      setAvatarFile(file)
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
   const handleSubmit = async () => {
     setLoading(true)
     setError('')
-    
+
+    // Sauvegarder la photo en localStorage avant l'inscription
+    if (avatarPreview) {
+      localStorage.setItem('pending_avatar', avatarPreview)
+    }
+
     const result = await signUp(
-      formData.email, 
-      formData.password, 
-      formData.firstName, 
-      formData.lastName, 
+      formData.email,
+      formData.password,
+      formData.firstName,
+      formData.lastName,
       formData.phone
     )
-    
+
     if (result.success) {
       setSuccess(true)
     } else {
       setError(result.error)
+      // En cas d'erreur, on nettoie le localStorage
+      localStorage.removeItem('pending_avatar')
     }
+
     setLoading(false)
   }
 
@@ -155,6 +179,35 @@ export default function Register() {
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                 <h2 className="font-display text-2xl text-white mb-6">Créez votre compte</h2>
                 <div className="space-y-4">
+                  {/* Photo de profil */}
+                  <div className="flex flex-col items-center mb-6">
+                    <div 
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-24 h-24 rounded-full bg-carbon-800 border-2 border-dashed border-carbon-600 flex items-center justify-center cursor-pointer hover:border-apex-500 transition-colors overflow-hidden"
+                    >
+                      {avatarPreview ? (
+                        <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" />
+                      ) : (
+                        <Camera className="w-8 h-8 text-carbon-500" />
+                      )}
+                    </div>
+                    <input 
+                      ref={fileInputRef}
+                      type="file" 
+                      accept="image/*" 
+                      capture="user"
+                      onChange={handleAvatarChange}
+                      className="hidden"
+                    />
+                    <button 
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="mt-2 text-sm text-apex-400 hover:text-apex-300"
+                    >
+                      {avatarPreview ? 'Changer la photo' : 'Ajouter une photo'}
+                    </button>
+                  </div>
+
                   <div className="grid md:grid-cols-2 gap-4">
                     <Input label="Prénom" value={formData.firstName} onChange={e => updateForm('firstName', e.target.value)} required />
                     <Input label="Nom" value={formData.lastName} onChange={e => updateForm('lastName', e.target.value)} required />
@@ -178,6 +231,12 @@ export default function Register() {
                 )}
 
                 <div className="card bg-carbon-800/50 p-4 mb-6">
+                  {avatarPreview && (
+                    <div className="flex justify-center mb-4">
+                      <img src={avatarPreview} alt="Photo" className="w-20 h-20 rounded-full object-cover border-2 border-apex-500" />
+                    </div>
+                  )}
+                  
                   <h3 className="font-medium text-white mb-3">Récapitulatif</h3>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
