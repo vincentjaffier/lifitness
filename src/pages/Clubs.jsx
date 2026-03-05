@@ -25,7 +25,7 @@ export default function Clubs() {
       {/* Hero */}
       <section className="relative py-20 bg-carbon-900/50">
         <div className="container-custom">
-          <SectionHeader badge="Nos clubs" title="Trouvez votre club APEX" subtitle="8 adresses premium en France" />
+          <SectionHeader badge="Nos clubs" title="Trouvez votre club LIF'ITNESS" subtitle="2 adresses premium en France" />
           
           {/* Search */}
           <div className="max-w-2xl mx-auto">
