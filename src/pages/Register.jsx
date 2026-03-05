@@ -22,6 +22,7 @@ export default function Register() {
   const [success, setSuccess] = useState(false)
   const [avatarFile, setAvatarFile] = useState(null)
   const [avatarPreview, setAvatarPreview] = useState(null)
+  const [avatarError, setAvatarError] = useState(false)
   const fileInputRef = useRef(null)
   const [formData, setFormData] = useState({
     plan: searchParams.get('plan') || 'premium',
@@ -33,13 +34,23 @@ export default function Register() {
   const selectedClub = clubs.find(c => c.id === formData.club)
 
   const updateForm = (key, value) => setFormData(prev => ({ ...prev, [key]: value }))
-  const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, steps.length - 1))
   const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 0))
+
+  const nextStep = () => {
+    // Bloquer l'étape 3 si pas de photo
+    if (currentStep === 2 && !avatarPreview) {
+      setAvatarError(true)
+      return
+    }
+    setAvatarError(false)
+    setCurrentStep(prev => Math.min(prev + 1, steps.length - 1))
+  }
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0]
     if (file) {
       setAvatarFile(file)
+      setAvatarError(false)
       const reader = new FileReader()
       reader.onloadend = () => {
         setAvatarPreview(reader.result)
@@ -52,7 +63,6 @@ export default function Register() {
     setLoading(true)
     setError('')
 
-    // Sauvegarder la photo en localStorage avant l'inscription
     if (avatarPreview) {
       localStorage.setItem('pending_avatar', avatarPreview)
     }
@@ -69,7 +79,6 @@ export default function Register() {
       setSuccess(true)
     } else {
       setError(result.error)
-      // En cas d'erreur, on nettoie le localStorage
       localStorage.removeItem('pending_avatar')
     }
 
@@ -183,7 +192,10 @@ export default function Register() {
                   <div className="flex flex-col items-center mb-6">
                     <div 
                       onClick={() => fileInputRef.current?.click()}
-                      className="w-24 h-24 rounded-full bg-carbon-800 border-2 border-dashed border-carbon-600 flex items-center justify-center cursor-pointer hover:border-apex-500 transition-colors overflow-hidden"
+                      className={cn(
+                        'w-24 h-24 rounded-full bg-carbon-800 border-2 border-dashed flex items-center justify-center cursor-pointer transition-colors overflow-hidden',
+                        avatarError ? 'border-red-500' : 'border-carbon-600 hover:border-apex-500'
+                      )}
                     >
                       {avatarPreview ? (
                         <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" />
@@ -206,6 +218,9 @@ export default function Register() {
                     >
                       {avatarPreview ? 'Changer la photo' : 'Ajouter une photo'}
                     </button>
+                    {avatarError && (
+                      <p className="text-red-400 text-sm mt-2">📸 Une photo de profil est obligatoire</p>
+                    )}
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-4">
