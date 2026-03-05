@@ -17,6 +17,9 @@ export default function ScanQR() {
       const scanner = new Html5QrcodeScanner('reader', {
         qrbox: { width: 250, height: 250 },
         fps: 5,
+        videoConstraints: {
+          facingMode: { exact: "environment" }
+        }
       })
 
       scanner.render(onScanSuccess, onScanFailure)
@@ -37,13 +40,11 @@ export default function ScanQR() {
     setError(null)
     setMember(null)
 
-    // Arrêter le scanner
     if (scannerRef.current) {
       scannerRef.current.clear().catch(console.error)
     }
 
     try {
-      // Vérifier si c'est un UUID valide
       const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
       
       if (!uuidRegex.test(decodedText)) {
@@ -52,7 +53,6 @@ export default function ScanQR() {
         return
       }
 
-      // Chercher dans la table profiles (si elle existe) ou utiliser les données locales
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('*')
@@ -61,17 +61,15 @@ export default function ScanQR() {
 
       if (profile && !profileError) {
         const memberData = {
-            id: profile.id,
-            email: profile.email,
-            first_name: profile.first_name || '',
-            last_name: profile.last_name || '',
-            avatar_url: profile.avatar_url || null,
-          }
+          id: profile.id,
+          email: profile.email,
+          first_name: profile.first_name || '',
+          last_name: profile.last_name || '',
+          avatar_url: profile.avatar_url || null,
+        }
         setMember(memberData)
         addToRecentScans(memberData)
       } else {
-        // Si pas trouvé dans profiles, on affiche quand même un succès basique
-        // car le QR Code est valide (format UUID)
         const memberData = {
           id: decodedText,
           email: 'Membre vérifié',
@@ -135,14 +133,14 @@ export default function ScanQR() {
             )}
 
             {member && !loading && (
-  <div className="text-center py-6">
-    {member.avatar_url ? (
-      <img src={member.avatar_url} alt={member.first_name} className="w-24 h-24 rounded-full object-cover mx-auto mb-4 border-4 border-success-500" />
-    ) : (
-      <div className="w-20 h-20 bg-success-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-        <CheckCircle className="w-10 h-10 text-success-500" />
-      </div>
-    )}
+              <div className="text-center py-6">
+                {member.avatar_url ? (
+                  <img src={member.avatar_url} alt={member.first_name} className="w-24 h-24 rounded-full object-cover mx-auto mb-4 border-4 border-success-500" />
+                ) : (
+                  <div className="w-20 h-20 bg-success-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle className="w-10 h-10 text-success-500" />
+                  </div>
+                )}
                 <h2 className="font-display text-2xl text-white mb-2">Accès autorisé ✅</h2>
                 <p className="text-xl text-apex-400 mb-1">
                   {member.first_name} {member.last_name}
@@ -182,13 +180,13 @@ export default function ScanQR() {
               {recentScans.map((scan, i) => (
                 <div key={i} className="flex items-center justify-between p-3 bg-carbon-800/50 rounded-lg">
                   <div className="flex items-center gap-3">
-                  {scan.avatar_url ? (
-  <img src={scan.avatar_url} alt={scan.first_name} className="w-8 h-8 rounded-full object-cover" />
-) : (
-  <div className="w-8 h-8 bg-success-500/20 rounded-full flex items-center justify-center">
-    <User className="w-4 h-4 text-success-500" />
-  </div>
-)}
+                    {scan.avatar_url ? (
+                      <img src={scan.avatar_url} alt={scan.first_name} className="w-8 h-8 rounded-full object-cover" />
+                    ) : (
+                      <div className="w-8 h-8 bg-success-500/20 rounded-full flex items-center justify-center">
+                        <User className="w-4 h-4 text-success-500" />
+                      </div>
+                    )}
                     <div>
                       <p className="text-white font-medium">{scan.first_name} {scan.last_name}</p>
                       <p className="text-carbon-400 text-sm">{scan.email}</p>
