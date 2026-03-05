@@ -69,7 +69,7 @@ export default function Home() {
       {/* Clubs */}
       <Section>
         <div className="container-custom">
-          <SectionHeader badge="Nos clubs" title="Trouvez votre club APEX" />
+          <SectionHeader badge="Nos clubs" title="Trouvez votre club LIF'ITNESS" />
           <div className="grid md:grid-cols-3 gap-6">{clubs.slice(0, 6).map((c, i) => <ClubCard key={c.id} club={c} index={i} />)}</div>
           <div className="text-center mt-10"><Link to="/clubs" className="btn-secondary">Voir tous les clubs<ChevronRight className="w-4 h-4" /></Link></div>
         </div>
