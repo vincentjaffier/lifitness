@@ -91,7 +91,7 @@ export default function Footer() {
               </div>
               <div className="flex flex-col">
                 <span className="font-display font-bold text-xl text-white tracking-tight">
-                  APEX
+                  LIF'ITNESS
                 </span>
                 <span className="text-[10px] text-apex-400 uppercase tracking-[0.2em] -mt-1">
                   Fitness
@@ -99,7 +99,7 @@ export default function Footer() {
               </div>
             </Link>
             <p className="text-carbon-400 mb-6 max-w-sm">
-              Le réseau de salles de sport premium. Des équipements haut de gamme, des coachs d'élite et une communauté passionnée pour atteindre l'excellence.
+              Le réseau de salles de sport premium à Dakar. Des équipements haut de gamme, des coachs d'élite et une communauté passionnée pour atteindre l'excellence.
             </p>
             
             {/* Contact Info */}
@@ -109,14 +109,14 @@ export default function Footer() {
                 className="flex items-center gap-3 text-carbon-300 hover:text-apex-400 transition-colors"
               >
                 <Phone className="w-4 h-4" />
-                <span>+33 1 00 00 00 00</span>
+                <span>+221 77 818 58 43</span>
               </a>
               <a 
-                href="mailto:contact@apex-fitness.fr" 
+                href="mailto:contact@lifitness.fr" 
                 className="flex items-center gap-3 text-carbon-300 hover:text-apex-400 transition-colors"
               >
                 <Mail className="w-4 h-4" />
-                <span>contact@apex-fitness.fr</span>
+                <span>contact@lifitness.fr</span>
               </a>
             </div>
 
@@ -208,11 +208,11 @@ export default function Footer() {
       <div className="border-t border-carbon-800">
         <div className="container-custom py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-carbon-500">
-            <p>© 2024 APEX FITNESS. Tous droits réservés.</p>
+            <p>© 2026 LIF'ITNESS. Tous droits réservés.</p>
             <div className="flex items-center gap-6">
               <span className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-success-500 animate-pulse" />
-                8 clubs en France
+                2 clubs à Dakar
               </span>
               <span>Paiement 100% sécurisé</span>
             </div>
