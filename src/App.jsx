@@ -41,6 +41,7 @@ import AdminMembers from './pages/admin/AdminMembers'
 import AdminContacts from './pages/admin/AdminContacts'
 import AdminPromotions from './pages/admin/AdminPromotions'
 import AdminStats from './pages/admin/AdminStats'
+import AdminPayments from './pages/admin/AdminPayments'
 import ScanQR from './pages/admin/ScanQR'
 
 function App() {
@@ -49,9 +50,6 @@ function App() {
       <BookingProvider>
         <AdminProvider>
           <Routes>
-            {/* ================================
-                PUBLIC ROUTES (Visiteurs)
-                ================================ */}
             <Route path="/" element={<Layout />}>
               <Route index element={<Home />} />
               <Route path="clubs" element={<Clubs />} />
@@ -65,14 +63,8 @@ function App() {
               <Route path="faq" element={<FAQ />} />
               <Route path="contact" element={<Contact />} />
               <Route path="inscription" element={<Register />} />
-              
-              {/* Auth Routes */}
               <Route path="connexion" element={<Login />} />
               <Route path="creer-compte" element={<Signup />} />
-              
-              {/* ================================
-                  MEMBER ROUTES (Abonnés)
-                  ================================ */}
               <Route path="espace-membre">
                 <Route index element={<Dashboard />} />
                 <Route path="abonnement" element={<MySubscription />} />
@@ -82,9 +74,6 @@ function App() {
               </Route>
             </Route>
 
-            {/* ================================
-                ADMIN ROUTES (Administrateurs)
-                ================================ */}
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/scan" element={<ScanQR />} />
             <Route
@@ -100,6 +89,7 @@ function App() {
               <Route path="coachs" element={<AdminCoaches />} />
               <Route path="cours" element={<AdminClasses />} />
               <Route path="membres" element={<AdminMembers />} />
+              <Route path="paiements" element={<AdminPayments />} />
               <Route path="contacts" element={<AdminContacts />} />
               <Route path="promotions" element={<AdminPromotions />} />
               <Route path="statistiques" element={<AdminStats />} />
