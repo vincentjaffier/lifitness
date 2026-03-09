@@ -92,7 +92,7 @@ export default function Footer() {
                   LIF'ITNESS
                 </span>
                 <span className="text-[10px] text-apex-400 uppercase tracking-[0.2em] -mt-1">
-                  Fitness
+                  DAKAR
                 </span>
               </div>
             </Link>
