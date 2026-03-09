@@ -16,30 +16,23 @@ export default function AdminDashboard() {
 
   const statCards = [
     { label: 'Membres actifs', value: stats.activeMembers, total: stats.totalMembers, icon: Users, color: 'apex', change: '+12%', up: true },
-    { label: 'Clubs', value: stats.clubsCount, icon: Building2, color: 'electric', change: '+1', up: true },
-    { label: 'Cours actifs', value: stats.activeClasses, total: stats.totalClasses, icon: Calendar, color: 'success', change: '+5%', up: true },
+    { label: 'Clubs', value: stats.clubsCount, icon: Building2, color: 'electric', change: '2', up: true },
+    { label: 'Cours actifs', value: stats.activeClasses, total: stats.totalClasses, icon: Calendar, color: 'success', change: `${stats.totalClasses}`, up: true },
     { label: 'Taux de remplissage', value: `${stats.fillRate}%`, icon: TrendingUp, color: 'warning', change: '-2%', up: false },
   ]
 
-  const recentMembers = members.slice(0, 5)
-  const pendingContacts = contactRequests.filter(c => c.status === 'new')
-  const fullClasses = classes.filter(c => c.enrolled >= c.capacity)
+  const recentMembers = (members || []).slice(0, 5)
+  const pendingContacts = (contactRequests || []).filter(c => c.status === 'new')
+  const fullClasses = (classes || []).filter(c => c.enrolled >= c.capacity)
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <div>
         <h1 className="font-display text-2xl md:text-3xl text-white mb-2">Dashboard</h1>
-        <p className="text-carbon-400">Vue d'ensemble de l'activité APEX FITNESS</p>
+        <p className="text-carbon-400">Vue d'ensemble de l'activité LIF'ITNESS</p>
       </div>
 
-      {/* Stats Grid */}
-      <motion.div
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="grid grid-cols-2 lg:grid-cols-4 gap-4"
-      >
+      <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((stat, i) => (
           <motion.div key={i} variants={item} className="card p-5">
             <div className="flex items-start justify-between mb-3">
@@ -75,18 +68,13 @@ export default function AdminDashboard() {
         ))}
       </motion.div>
 
-      {/* Revenue Chart Placeholder */}
+      {/* Revenue Chart */}
       <motion.div variants={item} initial="hidden" animate="show" className="card p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="font-display text-lg text-white">Revenus mensuels</h2>
-          <select className="bg-carbon-800 border border-carbon-700 rounded-lg px-3 py-1.5 text-sm text-carbon-300">
-            <option>6 derniers mois</option>
-            <option>12 derniers mois</option>
-            <option>Cette année</option>
-          </select>
+          <h2 className="font-display text-lg text-white">Réservations mensuelles</h2>
         </div>
         <div className="h-64 flex items-end justify-between gap-2">
-          {['Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'].map((month, i) => {
+          {['Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Fév'].map((month, i) => {
             const heights = [65, 72, 68, 85, 78, 92]
             return (
               <div key={month} className="flex-1 flex flex-col items-center gap-2">
@@ -99,15 +87,6 @@ export default function AdminDashboard() {
             )
           })}
         </div>
-        <div className="mt-4 pt-4 border-t border-carbon-800 flex items-center justify-between">
-          <div>
-            <p className="text-sm text-carbon-400">Total période</p>
-            <p className="font-display text-xl text-white">{stats.totalRevenue.toLocaleString()}€</p>
-          </div>
-          <Link to="/admin/statistiques" className="text-apex-400 text-sm hover:underline flex items-center gap-1">
-            Voir détails <ChevronRight className="w-4 h-4" />
-          </Link>
-        </div>
       </motion.div>
 
       <div className="grid lg:grid-cols-2 gap-6">
@@ -118,35 +97,47 @@ export default function AdminDashboard() {
             <Link to="/admin/membres" className="text-apex-400 text-sm hover:underline">Voir tout</Link>
           </div>
           <div className="space-y-3">
-            {recentMembers.map((member) => (
-              <div key={member.id} className="flex items-center justify-between p-3 bg-carbon-800/30 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-apex flex items-center justify-center">
-                    <span className="text-white font-medium text-sm">
-                      {member.firstName[0]}{member.lastName[0]}
+            {recentMembers.length === 0 && (
+              <p className="text-carbon-400 text-sm text-center py-4">Aucun membre pour l'instant</p>
+            )}
+            {recentMembers.map((member) => {
+              const firstName = member.first_name || member.firstName || '?'
+              const lastName = member.last_name || member.lastName || '?'
+              return (
+                <div key={member.id} className="flex items-center justify-between p-3 bg-carbon-800/30 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-apex flex items-center justify-center">
+                      {member.avatar_url ? (
+                        <img src={member.avatar_url} alt="" className="w-10 h-10 rounded-full object-cover" />
+                      ) : (
+                        <span className="text-white font-medium text-sm">
+                          {firstName[0]}{lastName[0]}
+                        </span>
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-medium text-white">{firstName} {lastName}</p>
+                      <p className="text-xs text-carbon-400">{member.email}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className={cn(
+                      'text-xs px-2 py-1 rounded-full',
+                      member.subscription_type === 'elite' && 'bg-electric-500/20 text-electric-400',
+                      member.subscription_type === 'premium' && 'bg-apex-500/20 text-apex-400',
+                      member.subscription_type === 'essential' && 'bg-carbon-700 text-carbon-300',
+                      !member.subscription_type && 'bg-carbon-700 text-carbon-300'
+                    )}>
+                      {member.subscription_type || 'Non défini'}
                     </span>
                   </div>
-                  <div>
-                    <p className="font-medium text-white">{member.firstName} {member.lastName}</p>
-                    <p className="text-xs text-carbon-400">{member.email}</p>
-                  </div>
                 </div>
-                <div className="text-right">
-                  <span className={cn(
-                    'text-xs px-2 py-1 rounded-full',
-                    member.subscription === 'elite' && 'bg-electric-500/20 text-electric-400',
-                    member.subscription === 'premium' && 'bg-apex-500/20 text-apex-400',
-                    member.subscription === 'essential' && 'bg-carbon-700 text-carbon-300'
-                  )}>
-                    {member.subscription}
-                  </span>
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </motion.div>
 
-        {/* Alerts & Notifications */}
+        {/* Alerts */}
         <motion.div variants={item} initial="hidden" animate="show" className="card p-6">
           <h2 className="font-display text-lg text-white mb-4">Alertes & Notifications</h2>
           <div className="space-y-3">
@@ -160,7 +151,6 @@ export default function AdminDashboard() {
                 <ChevronRight className="w-4 h-4 text-carbon-400" />
               </Link>
             )}
-
             {fullClasses.length > 0 && (
               <Link to="/admin/cours" className="flex items-center gap-3 p-3 bg-warning-500/10 border border-warning-500/30 rounded-lg hover:bg-warning-500/20 transition-colors">
                 <Clock className="w-5 h-5 text-warning-400" />
@@ -171,12 +161,11 @@ export default function AdminDashboard() {
                 <ChevronRight className="w-4 h-4 text-carbon-400" />
               </Link>
             )}
-
             <div className="flex items-center gap-3 p-3 bg-success-500/10 border border-success-500/30 rounded-lg">
               <TrendingUp className="w-5 h-5 text-success-400" />
               <div>
-                <p className="text-white font-medium">Croissance +12% ce mois</p>
-                <p className="text-xs text-carbon-400">Par rapport au mois précédent</p>
+                <p className="text-white font-medium">{stats.totalMembers} membres inscrits</p>
+                <p className="text-xs text-carbon-400">{stats.totalClasses} cours disponibles</p>
               </div>
             </div>
           </div>
