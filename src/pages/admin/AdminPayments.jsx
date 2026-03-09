@@ -23,9 +23,9 @@ export default function AdminPayments() {
   const fetchPayments = async () => {
     console.log('Fetching payments...')
     const { data, error } = await supabase
-      .from('payments')
-      .select(`*, profiles(first_name, last_name, email, avatar_url)`)
-      .order('created_at', { ascending: false })
+  .from('payments')
+  .select(`*, profiles!payments_user_id_fkey(first_name, last_name, email, avatar_url)`)
+  .order('created_at', { ascending: false })
 
     console.log('Payments data:', data, 'Error:', error)
     if (!error) setPayments(data || [])
