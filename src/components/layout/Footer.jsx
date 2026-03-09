@@ -85,9 +85,7 @@ export default function Footer() {
           <div className="col-span-2 md:col-span-3 lg:col-span-2">
             <Link to="/" className="inline-flex items-center gap-3 group mb-6">
               <div className="relative">
-                <div className="w-10 h-10 bg-gradient-apex rounded-lg flex items-center justify-center">
-                  <span className="font-display font-bold text-white text-xl">A</span>
-                </div>
+              <img src="/logo.png" alt="LIF'ITNESS" className="w-10 h-10 object-contain" />
               </div>
               <div className="flex flex-col">
                 <span className="font-display font-bold text-xl text-white tracking-tight">
