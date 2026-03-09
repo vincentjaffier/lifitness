@@ -11,17 +11,24 @@ export function BookingProvider({ children }) {
   const [isLoading, setIsLoading] = useState(false)
 
   const fetchSchedule = useCallback(async () => {
-    // Charger tous les cours avec leurs coachs
+    console.log('🔄 fetchSchedule démarré')
+
     const { data: courses, error } = await supabase
       .from('courses')
       .select(`*, coaches (id, first_name, last_name)`)
+
+    console.log('📚 Cours récupérés:', courses, 'Erreur:', error)
 
     if (error) {
       console.error('Erreur chargement cours:', error)
       return
     }
 
-    // Charger toutes les réservations confirmées pour les 7 prochains jours
+    if (!courses || courses.length === 0) {
+      console.warn('⚠️ Aucun cours trouvé')
+      return
+    }
+
     const today = new Date().toISOString().split('T')[0]
     const nextWeek = new Date()
     nextWeek.setDate(nextWeek.getDate() + 7)
@@ -34,7 +41,8 @@ export function BookingProvider({ children }) {
       .gte('date', today)
       .lte('date', nextWeekStr)
 
-    // Générer les cours pour les 7 prochains jours
+    console.log('📅 Réservations récupérées:', bookings)
+
     const upcoming = []
     for (let i = 0; i < 7; i++) {
       const date = new Date()
@@ -42,7 +50,10 @@ export function BookingProvider({ children }) {
       const dayOfWeek = date.getDay() === 0 ? 7 : date.getDay()
       const dateStr = date.toISOString().split('T')[0]
 
+      console.log(`Jour ${i}: ${dateStr}, dayOfWeek: ${dayOfWeek}`)
+
       const coursesForDay = courses.filter(c => c.day_of_week === dayOfWeek)
+      console.log(`Cours pour ce jour:`, coursesForDay)
 
       for (const course of coursesForDay) {
         const bookedCount = bookings
@@ -66,6 +77,7 @@ export function BookingProvider({ children }) {
       }
     }
 
+    console.log('✅ Planning final:', upcoming)
     setSchedule(upcoming)
   }, [])
 
