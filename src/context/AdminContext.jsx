@@ -209,6 +209,7 @@ export function AdminProvider({ children }) {
     clubs,
     coaches,
     classes,
+    courses: classes,
     members,
     contactRequests,
     promotions,
