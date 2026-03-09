@@ -5,6 +5,8 @@ export default function AdminProtectedRoute({ children }) {
   const { isAdminAuthenticated, isLoading } = useAdmin()
   const location = useLocation()
 
+  console.log('AdminProtectedRoute:', { isAdminAuthenticated, isLoading })
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-carbon-950 flex items-center justify-center">
