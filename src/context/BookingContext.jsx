@@ -125,7 +125,12 @@ export function BookingProvider({ children }) {
           status: 'confirmed'
         })
 
-      if (error) throw error
+        if (error) {
+          if (error.code === '23505') {
+            throw new Error('Vous avez déjà réservé ce cours')
+          }
+          throw new Error('Erreur lors de la réservation')
+        }
 
       await fetchSchedule()
       await fetchReservations()
