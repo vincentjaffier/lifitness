@@ -10,42 +10,44 @@ export function BookingProvider({ children }) {
   const [reservations, setReservations] = useState([])
   const [isLoading, setIsLoading] = useState(false)
 
-  // Charger les cours depuis Supabase
   const fetchSchedule = useCallback(async () => {
-    const { data, error } = await supabase
+    // Charger tous les cours avec leurs coachs
+    const { data: courses, error } = await supabase
       .from('courses')
-      .select(`
-        *,
-        coaches (
-          id,
-          first_name,
-          last_name
-        )
-      `)
+      .select(`*, coaches (id, first_name, last_name)`)
 
     if (error) {
       console.error('Erreur chargement cours:', error)
       return
     }
 
-    // Générer les cours pour les 7 prochains jours selon le jour de la semaine
+    // Charger toutes les réservations confirmées pour les 7 prochains jours
+    const today = new Date().toISOString().split('T')[0]
+    const nextWeek = new Date()
+    nextWeek.setDate(nextWeek.getDate() + 7)
+    const nextWeekStr = nextWeek.toISOString().split('T')[0]
+
+    const { data: bookings } = await supabase
+      .from('bookings')
+      .select('course_id, date')
+      .eq('status', 'confirmed')
+      .gte('date', today)
+      .lte('date', nextWeekStr)
+
+    // Générer les cours pour les 7 prochains jours
     const upcoming = []
     for (let i = 0; i < 7; i++) {
       const date = new Date()
       date.setDate(date.getDate() + i)
-      const dayOfWeek = date.getDay() === 0 ? 7 : date.getDay() // 1=Lundi...7=Dimanche
+      const dayOfWeek = date.getDay() === 0 ? 7 : date.getDay()
       const dateStr = date.toISOString().split('T')[0]
 
-      const coursesForDay = data.filter(c => c.day_of_week === dayOfWeek)
+      const coursesForDay = courses.filter(c => c.day_of_week === dayOfWeek)
 
       for (const course of coursesForDay) {
-        // Compter les réservations confirmées pour ce cours à cette date
-        const { count } = await supabase
-          .from('bookings')
-          .select('*', { count: 'exact', head: true })
-          .eq('course_id', course.id)
-          .eq('date', dateStr)
-          .eq('status', 'confirmed')
+        const bookedCount = bookings
+          ? bookings.filter(b => b.course_id === course.id && b.date === dateStr).length
+          : 0
 
         upcoming.push({
           id: `${course.id}_${dateStr}`,
@@ -56,8 +58,8 @@ export function BookingProvider({ children }) {
           instructor: `${course.coaches.first_name} ${course.coaches.last_name}`,
           duration: course.duration_minutes,
           capacity: course.max_spots,
-          booked: count || 0,
-          available: course.max_spots - (count || 0),
+          booked: bookedCount,
+          available: course.max_spots - bookedCount,
           clubId: course.club_id,
           activity: course.name.toLowerCase()
         })
@@ -67,7 +69,6 @@ export function BookingProvider({ children }) {
     setSchedule(upcoming)
   }, [])
 
-  // Charger les réservations de l'utilisateur connecté
   const fetchReservations = useCallback(async () => {
     if (!user) return
 
@@ -111,7 +112,6 @@ export function BookingProvider({ children }) {
         return { success: false, error: 'Ce cours est complet' }
       }
 
-      // Vérifier si déjà réservé
       const { data: existing } = await supabase
         .from('bookings')
         .select('id')
@@ -119,7 +119,7 @@ export function BookingProvider({ children }) {
         .eq('course_id', classItem.courseId)
         .eq('date', classItem.date)
         .eq('status', 'confirmed')
-        .single()
+        .maybeSingle()
 
       if (existing) {
         return { success: false, error: 'Vous avez déjà réservé ce cours' }
