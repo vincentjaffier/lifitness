@@ -103,34 +103,43 @@ export function BookingProvider({ children }) {
         return { success: false, error: 'Ce cours est complet' }
       }
 
+      // Vérifier si une réservation existe déjà (confirmée ou annulée)
       const { data: existing } = await supabase
         .from('bookings')
-        .select('id')
+        .select('id, status')
         .eq('user_id', user.id)
         .eq('course_id', classItem.courseId)
         .eq('date', classItem.date)
-        .eq('status', 'confirmed')
         .maybeSingle()
 
-      if (existing) {
+      if (existing?.status === 'confirmed') {
         return { success: false, error: 'Vous avez déjà réservé ce cours' }
       }
 
-      const { error } = await supabase
-        .from('bookings')
-        .insert({
-          user_id: user.id,
-          course_id: classItem.courseId,
-          date: classItem.date,
-          status: 'confirmed'
-        })
+      if (existing?.status === 'cancelled') {
+        // Réactiver la réservation annulée
+        const { error } = await supabase
+          .from('bookings')
+          .update({ status: 'confirmed' })
+          .eq('id', existing.id)
+
+        if (error) throw new Error('Erreur lors de la réservation')
+      } else {
+        // Nouvelle réservation
+        const { error } = await supabase
+          .from('bookings')
+          .insert({
+            user_id: user.id,
+            course_id: classItem.courseId,
+            date: classItem.date,
+            status: 'confirmed'
+          })
 
         if (error) {
-          if (error.code === '23505') {
-            throw new Error('Vous avez déjà réservé ce cours')
-          }
+          if (error.code === '23505') throw new Error('Vous avez déjà réservé ce cours')
           throw new Error('Erreur lors de la réservation')
         }
+      }
 
       await fetchSchedule()
       await fetchReservations()
