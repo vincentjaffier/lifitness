@@ -1,16 +1,21 @@
 import { useState, useMemo } from 'react'
-import { motion } from 'framer-motion'
-import { Calendar, Clock, User, Users, ChevronLeft, ChevronRight } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Calendar, User, Users, CheckCircle, XCircle } from 'lucide-react'
 import Section, { SectionHeader } from '../components/ui/Section'
 import { useBooking } from '../context/BookingContext'
 import { useAuth } from '../context/AuthContext'
-import Badge from '../components/ui/Badge'
 
 export default function Planning() {
   const { schedule, bookClass, isLoading } = useBooking()
   const { isAuthenticated } = useAuth()
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
   const [selectedActivity, setSelectedActivity] = useState('')
+  const [toast, setToast] = useState(null) // { message, type: 'success' | 'error' }
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type })
+    setTimeout(() => setToast(null), 3000)
+  }
 
   const dates = useMemo(() => {
     const arr = []
@@ -31,16 +36,33 @@ export default function Planning() {
 
   const handleBook = async (classItem) => {
     if (!isAuthenticated) {
-      alert('Connectez-vous pour réserver')
+      showToast('Connectez-vous pour réserver', 'error')
       return
     }
     const result = await bookClass(classItem)
-    if (result.success) alert('Réservation confirmée !')
-    else alert(result.error)
+    if (result.success) showToast('Réservation confirmée ! 🎉', 'success')
+    else showToast(result.error, 'error')
   }
 
   return (
     <>
+      {/* Toast notification */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-6 py-4 rounded-2xl shadow-xl ${toast.type === 'success' ? 'bg-success-500 text-white' : 'bg-red-500 text-white'}`}
+          >
+            {toast.type === 'success'
+              ? <CheckCircle className="w-5 h-5 shrink-0" />
+              : <XCircle className="w-5 h-5 shrink-0" />}
+            <span className="font-medium">{toast.message}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <section className="py-12 bg-carbon-900/50">
         <div className="container-custom">
           <SectionHeader badge="Planning" title="Réservez vos cours" />

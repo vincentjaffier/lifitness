@@ -25,9 +25,7 @@ export default function MyReservations() {
   const past = reservations.filter(r => r.date < today || r.status === 'cancelled')
 
   const handleCancel = async (id) => {
-    if (window.confirm('Annuler cette réservation ?')) {
-      await cancelReservation(id)
-    }
+    await cancelReservation(id)
   }
 
   const displayList = activeTab === 'upcoming' ? upcoming : past
