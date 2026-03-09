@@ -9,7 +9,7 @@ import QRCodeCard from '../../components/member/QRCodeCard'
 
 export default function Dashboard() {
   const { user, isAuthenticated, loading } = useAuth()
-  const { getActiveReservations } = useBooking()
+  const { getActiveReservations, reservations } = useBooking()
 
   if (loading) {
     return (
@@ -34,6 +34,16 @@ export default function Dashboard() {
   }
 
   const activeReservations = getActiveReservations()
+
+  // Stats réelles
+  const now = new Date()
+  const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
+  const seancesThisMonth = reservations.filter(r => r.status === 'confirmed' && r.date >= firstDayOfMonth).length
+  const totalSeances = reservations.filter(r => r.status === 'confirmed').length
+
+  const subscriptionStatus = user?.subscription_status
+  const subscriptionType = user?.subscription_type
+
   const quickLinks = [
     { icon: Calendar, label: 'Mes réservations', href: '/espace-membre/reservations', count: activeReservations.length },
     { icon: CreditCard, label: 'Mon abonnement', href: '/espace-membre/abonnement' },
@@ -49,18 +59,19 @@ export default function Dashboard() {
           <h1 className="font-display text-display-sm text-white mb-2">
             Bonjour, {user?.first_name || user?.email} 👋
           </h1>
-          <p className="text-carbon-400">Bienvenue dans votre espace membre Lif'itness</p>
+          <p className="text-carbon-400">Bienvenue dans votre espace membre LIF'ITNESS</p>
         </motion.div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {[
-            { label: 'Séances ce mois', value: 0, icon: Dumbbell },
-            { label: 'Série en cours', value: '0 jours', icon: Clock },
-            { label: 'Total séances', value: 0, icon: Calendar },
-            { label: 'Réservations', value: activeReservations.length, icon: Calendar },
+            { label: 'Séances ce mois', value: seancesThisMonth, icon: Dumbbell },
+            { label: 'Réservations à venir', value: activeReservations.length, icon: Clock },
+            { label: 'Total séances', value: totalSeances, icon: Calendar },
+            { label: 'Statut abonnement', value: subscriptionStatus === 'active' ? '✓ Actif' : '⚠ Inactif', icon: CreditCard },
           ].map((stat, i) => (
-            <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="card p-4">
+            <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.1 }} className="card p-4">
               <stat.icon className="w-5 h-5 text-apex-400 mb-2" />
               <div className="font-display text-2xl text-white">{stat.value}</div>
               <div className="text-sm text-carbon-400">{stat.label}</div>
@@ -82,7 +93,7 @@ export default function Dashboard() {
                     <span className="font-medium text-white">{link.label}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    {link.count !== undefined && <Badge variant="apex">{link.count}</Badge>}
+                    {link.count !== undefined && link.count > 0 && <Badge variant="apex">{link.count}</Badge>}
                     <ChevronRight className="w-4 h-4 text-carbon-400" />
                   </div>
                 </Link>
@@ -100,8 +111,14 @@ export default function Dashboard() {
             <h2 className="font-display text-lg text-white mb-4">Mon abonnement</h2>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex items-center gap-4">
-                <Badge variant="apex">{user?.subscription_type?.toUpperCase() || 'ESSENTIAL'}</Badge>
-                <span className="text-success-400 text-sm">Actif</span>
+                {subscriptionType ? (
+                  <Badge variant="apex">{subscriptionType.toUpperCase()}</Badge>
+                ) : (
+                  <Badge variant="neutral">AUCUN</Badge>
+                )}
+                <span className={subscriptionStatus === 'active' ? 'text-success-400 text-sm' : 'text-warning-400 text-sm'}>
+                  {subscriptionStatus === 'active' ? '✓ Actif' : subscriptionStatus === 'pending' ? '⏳ En attente' : '⚠ Inactif'}
+                </span>
               </div>
               <Link to="/espace-membre/abonnement" className="btn-secondary justify-center">
                 Gérer <ArrowRight className="w-4 h-4" />
