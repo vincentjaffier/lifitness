@@ -1,11 +1,10 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Search, Edit2, Trash2, Star, Phone, Mail, X } from 'lucide-react'
+import { Plus, Search, Edit2, Trash2, Phone, Mail, X } from 'lucide-react'
 import { useAdmin } from '../../context/AdminContext'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import Badge from '../../components/ui/Badge'
-import { cn } from '../../utils/helpers'
 
 export default function AdminCoaches() {
   const { coaches, clubs, updateCoach, addCoach, deleteCoach } = useAdmin()
@@ -13,25 +12,29 @@ export default function AdminCoaches() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingCoach, setEditingCoach] = useState(null)
   const [formData, setFormData] = useState({
-    firstName: '', lastName: '', email: '', phone: '', specialty: '', clubs: [], status: 'active'
+    first_name: '', last_name: '', email: '', phone: '', specialties: [], club_id: 'lifitness-almadies'
   })
 
-  const filteredCoaches = coaches.filter(coach =>
-    `${coach.firstName} ${coach.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    coach.specialty.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const filteredCoaches = coaches.filter(coach => {
+    const fullName = `${coach.first_name || ''} ${coach.last_name || ''}`.toLowerCase()
+    const specialties = Array.isArray(coach.specialties) ? coach.specialties.join(' ').toLowerCase() : ''
+    return fullName.includes(searchQuery.toLowerCase()) || specialties.includes(searchQuery.toLowerCase())
+  })
 
   const openModal = (coach = null) => {
     if (coach) {
       setEditingCoach(coach)
       setFormData({
-        firstName: coach.firstName, lastName: coach.lastName,
-        email: coach.email, phone: coach.phone,
-        specialty: coach.specialty, clubs: coach.clubs, status: coach.status
+        first_name: coach.first_name || '',
+        last_name: coach.last_name || '',
+        email: coach.email || '',
+        phone: coach.phone || '',
+        specialties: coach.specialties || [],
+        club_id: coach.club_id || 'lifitness-almadies'
       })
     } else {
       setEditingCoach(null)
-      setFormData({ firstName: '', lastName: '', email: '', phone: '', specialty: '', clubs: [], status: 'active' })
+      setFormData({ first_name: '', last_name: '', email: '', phone: '', specialties: [], club_id: 'lifitness-almadies' })
     }
     setIsModalOpen(true)
   }
@@ -54,9 +57,13 @@ export default function AdminCoaches() {
 
   const getClubName = (clubId) => clubs.find(c => c.id === clubId)?.name || clubId
 
+  const handleSpecialties = (value) => {
+    const arr = value.split(',').map(s => s.trim()).filter(Boolean)
+    setFormData(p => ({ ...p, specialties: arr }))
+  }
+
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl text-white mb-1">Gestion des coachs</h1>
@@ -67,53 +74,51 @@ export default function AdminCoaches() {
         </Button>
       </div>
 
-      {/* Search */}
       <div className="relative max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-carbon-500" />
         <input type="text" placeholder="Rechercher un coach..." value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)} className="input pl-10" />
       </div>
 
-      {/* Grid */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredCoaches.map((coach) => (
           <motion.div key={coach.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="card p-5">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full bg-gradient-apex flex items-center justify-center">
-                  <span className="font-bold text-white">{coach.firstName[0]}{coach.lastName[0]}</span>
+                  <span className="font-bold text-white">
+                    {(coach.first_name || '?')[0]}{(coach.last_name || '?')[0]}
+                  </span>
                 </div>
                 <div>
-                  <h3 className="font-medium text-white">{coach.firstName} {coach.lastName}</h3>
-                  <p className="text-sm text-apex-400">{coach.specialty}</p>
+                  <h3 className="font-medium text-white">{coach.first_name} {coach.last_name}</h3>
+                  <p className="text-sm text-apex-400">
+                    {Array.isArray(coach.specialties) ? coach.specialties.join(', ') : coach.specialties}
+                  </p>
                 </div>
               </div>
-              <Badge variant={coach.status === 'active' ? 'success' : 'warning'}>
-                {coach.status === 'active' ? 'Actif' : 'Absent'}
-              </Badge>
+              <Badge variant="success">Actif</Badge>
             </div>
 
             <div className="space-y-2 text-sm mb-4">
-              <div className="flex items-center gap-2 text-carbon-400">
-                <Mail className="w-4 h-4" />
-                <span className="truncate">{coach.email}</span>
-              </div>
-              <div className="flex items-center gap-2 text-carbon-400">
-                <Phone className="w-4 h-4" />
-                <span>{coach.phone}</span>
-              </div>
-              <div className="flex items-center gap-2 text-carbon-400">
-                <Star className="w-4 h-4 text-apex-400" />
-                <span>{coach.rating}/5 • {coach.sessionsMonth} séances/mois</span>
-              </div>
+              {coach.email && (
+                <div className="flex items-center gap-2 text-carbon-400">
+                  <Mail className="w-4 h-4" />
+                  <span className="truncate">{coach.email}</span>
+                </div>
+              )}
+              {coach.phone && (
+                <div className="flex items-center gap-2 text-carbon-400">
+                  <Phone className="w-4 h-4" />
+                  <span>{coach.phone}</span>
+                </div>
+              )}
             </div>
 
             <div className="flex flex-wrap gap-1 mb-4">
-              {coach.clubs.map(clubId => (
-                <span key={clubId} className="text-xs bg-carbon-800 text-carbon-300 px-2 py-1 rounded">
-                  {getClubName(clubId)}
-                </span>
-              ))}
+              <span className="text-xs bg-carbon-800 text-carbon-300 px-2 py-1 rounded">
+                {getClubName(coach.club_id)}
+              </span>
             </div>
 
             <div className="flex gap-2 pt-4 border-t border-carbon-800">
@@ -128,7 +133,6 @@ export default function AdminCoaches() {
         ))}
       </div>
 
-      {/* Modal */}
       <AnimatePresence>
         {isModalOpen && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -142,18 +146,23 @@ export default function AdminCoaches() {
               </div>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <Input label="Prénom" value={formData.firstName} onChange={(e) => setFormData(p => ({ ...p, firstName: e.target.value }))} required />
-                  <Input label="Nom" value={formData.lastName} onChange={(e) => setFormData(p => ({ ...p, lastName: e.target.value }))} required />
+                  <Input label="Prénom" value={formData.first_name} onChange={(e) => setFormData(p => ({ ...p, first_name: e.target.value }))} required />
+                  <Input label="Nom" value={formData.last_name} onChange={(e) => setFormData(p => ({ ...p, last_name: e.target.value }))} required />
                 </div>
-                <Input type="email" label="Email" value={formData.email} onChange={(e) => setFormData(p => ({ ...p, email: e.target.value }))} required />
+                <Input type="email" label="Email" value={formData.email} onChange={(e) => setFormData(p => ({ ...p, email: e.target.value }))} />
                 <Input type="tel" label="Téléphone" value={formData.phone} onChange={(e) => setFormData(p => ({ ...p, phone: e.target.value }))} />
-                <Input label="Spécialité" value={formData.specialty} onChange={(e) => setFormData(p => ({ ...p, specialty: e.target.value }))} required />
+                <Input 
+                  label="Spécialités (séparées par des virgules)" 
+                  value={Array.isArray(formData.specialties) ? formData.specialties.join(', ') : ''}
+                  onChange={(e) => handleSpecialties(e.target.value)} 
+                  required 
+                />
                 <div>
-                  <label className="label">Statut</label>
-                  <select className="select" value={formData.status} onChange={(e) => setFormData(p => ({ ...p, status: e.target.value }))}>
-                    <option value="active">Actif</option>
-                    <option value="vacation">En vacances</option>
-                    <option value="inactive">Inactif</option>
+                  <label className="label">Club</label>
+                  <select className="select" value={formData.club_id} onChange={(e) => setFormData(p => ({ ...p, club_id: e.target.value }))}>
+                    {clubs.map(club => (
+                      <option key={club.id} value={club.id}>{club.name}</option>
+                    ))}
                   </select>
                 </div>
                 <div className="flex gap-3 pt-4">
