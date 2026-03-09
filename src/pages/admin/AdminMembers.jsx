@@ -15,13 +15,15 @@ export default function AdminMembers() {
   const [viewingMember, setViewingMember] = useState(null)
 
   const filteredMembers = members.filter(m => {
-    const matchesSearch = `${m.firstName} ${m.lastName} ${m.email}`.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesStatus = !filterStatus || m.status === filterStatus
-    const matchesSub = !filterSubscription || m.subscription === filterSubscription
+    const firstName = m.first_name || ''
+    const lastName = m.last_name || ''
+    const matchesSearch = `${firstName} ${lastName} ${m.email}`.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesStatus = !filterStatus || m.subscription_status === filterStatus
+    const matchesSub = !filterSubscription || m.subscription_type === filterSubscription
     return matchesSearch && matchesStatus && matchesSub
   })
 
-  const getClubName = (clubId) => clubs.find(c => c.id === clubId)?.name || clubId
+  const getClubName = (clubId) => clubs.find(c => c.id === clubId)?.name || clubId || 'Non défini'
 
   const viewMember = (member) => {
     setViewingMember(member)
@@ -35,14 +37,14 @@ export default function AdminMembers() {
       await activateMember(memberId)
     }
     if (viewingMember?.id === memberId) {
-      setViewingMember(prev => ({ ...prev, status: newStatus }))
+      setViewingMember(prev => ({ ...prev, subscription_status: newStatus }))
     }
   }
 
   const handleSubscriptionChange = async (memberId, newSubscription) => {
-    await updateMember(memberId, { subscription: newSubscription })
+    await updateMember(memberId, { subscription_type: newSubscription })
     if (viewingMember?.id === memberId) {
-      setViewingMember(prev => ({ ...prev, subscription: newSubscription }))
+      setViewingMember(prev => ({ ...prev, subscription_type: newSubscription }))
     }
   }
 
@@ -60,7 +62,6 @@ export default function AdminMembers() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl text-white mb-1">Gestion des membres</h1>
@@ -71,7 +72,6 @@ export default function AdminMembers() {
         </Button>
       </div>
 
-      {/* Filters */}
       <div className="flex flex-wrap gap-4">
         <div className="relative flex-1 min-w-[200px] max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-carbon-500" />
@@ -92,13 +92,12 @@ export default function AdminMembers() {
         </select>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: 'Actifs', value: members.filter(m => m.status === 'active').length, color: 'text-success-400' },
-          { label: 'Suspendus', value: members.filter(m => m.status === 'suspended').length, color: 'text-warning-400' },
-          { label: 'Expirés', value: members.filter(m => m.status === 'expired').length, color: 'text-carbon-400' },
-          { label: 'Elite', value: members.filter(m => m.subscription === 'elite').length, color: 'text-electric-400' },
+          { label: 'Actifs', value: members.filter(m => m.subscription_status === 'active').length, color: 'text-success-400' },
+          { label: 'Suspendus', value: members.filter(m => m.subscription_status === 'suspended').length, color: 'text-warning-400' },
+          { label: 'Expirés', value: members.filter(m => m.subscription_status === 'expired').length, color: 'text-carbon-400' },
+          { label: 'Elite', value: members.filter(m => m.subscription_type === 'elite').length, color: 'text-electric-400' },
         ].map((stat, i) => (
           <div key={i} className="card p-4 text-center">
             <p className={cn('font-display text-2xl', stat.color)}>{stat.value}</p>
@@ -107,70 +106,79 @@ export default function AdminMembers() {
         ))}
       </div>
 
-      {/* Table */}
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-carbon-800">
                 <th className="text-left text-sm font-medium text-carbon-400 px-6 py-4">Membre</th>
-                <th className="text-left text-sm font-medium text-carbon-400 px-6 py-4">Club</th>
                 <th className="text-left text-sm font-medium text-carbon-400 px-6 py-4">Abonnement</th>
-                <th className="text-left text-sm font-medium text-carbon-400 px-6 py-4">Visites</th>
                 <th className="text-left text-sm font-medium text-carbon-400 px-6 py-4">Statut</th>
                 <th className="text-right text-sm font-medium text-carbon-400 px-6 py-4">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredMembers.map((member) => (
-                <tr key={member.id} className="border-b border-carbon-800/50 hover:bg-carbon-800/20">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-apex flex items-center justify-center">
-                        <span className="font-medium text-white text-sm">{member.firstName[0]}{member.lastName[0]}</span>
+              {filteredMembers.map((member) => {
+                const firstName = member.first_name || '?'
+                const lastName = member.last_name || '?'
+                return (
+                  <tr key={member.id} className="border-b border-carbon-800/50 hover:bg-carbon-800/20">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-gradient-apex flex items-center justify-center overflow-hidden">
+                          {member.avatar_url ? (
+                            <img src={member.avatar_url} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="font-medium text-white text-sm">{firstName[0]}{lastName[0]}</span>
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-medium text-white">{firstName} {lastName}</p>
+                          <p className="text-xs text-carbon-400">{member.email}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-white">{member.firstName} {member.lastName}</p>
-                        <p className="text-xs text-carbon-400">{member.email}</p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={cn('text-xs px-2 py-1 rounded-full capitalize', subscriptionColors[member.subscription_type] || 'bg-carbon-700 text-carbon-300')}>
+                        {member.subscription_type || 'Non défini'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <Badge variant={statusColors[member.subscription_status] || 'neutral'}>
+                        {member.subscription_status === 'active' ? 'Actif' : member.subscription_status === 'suspended' ? 'Suspendu' : 'Expiré'}
+                      </Badge>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center justify-end gap-2">
+                        <button onClick={() => viewMember(member)} className="p-2 text-carbon-400 hover:text-white hover:bg-carbon-800 rounded-lg">
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        {member.subscription_status === 'active' ? (
+                          <button onClick={() => handleStatusChange(member.id, 'suspended')} className="p-2 text-carbon-400 hover:text-warning-400 hover:bg-carbon-800 rounded-lg">
+                            <UserX className="w-4 h-4" />
+                          </button>
+                        ) : (
+                          <button onClick={() => handleStatusChange(member.id, 'active')} className="p-2 text-carbon-400 hover:text-success-400 hover:bg-carbon-800 rounded-lg">
+                            <UserCheck className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-carbon-300">{getClubName(member.club)}</td>
-                  <td className="px-6 py-4">
-                    <span className={cn('text-xs px-2 py-1 rounded-full capitalize', subscriptionColors[member.subscription])}>
-                      {member.subscription}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-carbon-300">{member.totalVisits}</td>
-                  <td className="px-6 py-4">
-                    <Badge variant={statusColors[member.status]}>
-                      {member.status === 'active' ? 'Actif' : member.status === 'suspended' ? 'Suspendu' : 'Expiré'}
-                    </Badge>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center justify-end gap-2">
-                      <button onClick={() => viewMember(member)} className="p-2 text-carbon-400 hover:text-white hover:bg-carbon-800 rounded-lg" title="Voir détails">
-                        <Eye className="w-4 h-4" />
-                      </button>
-                      {member.status === 'active' ? (
-                        <button onClick={() => handleStatusChange(member.id, 'suspended')} className="p-2 text-carbon-400 hover:text-warning-400 hover:bg-carbon-800 rounded-lg" title="Suspendre">
-                          <UserX className="w-4 h-4" />
-                        </button>
-                      ) : (
-                        <button onClick={() => handleStatusChange(member.id, 'active')} className="p-2 text-carbon-400 hover:text-success-400 hover:bg-carbon-800 rounded-lg" title="Activer">
-                          <UserCheck className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
+                    </td>
+                  </tr>
+                )
+              })}
+              {filteredMembers.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="px-6 py-12 text-center text-carbon-400">
+                    Aucun membre trouvé
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* Member Detail Modal */}
       <AnimatePresence>
         {isModalOpen && viewingMember && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -183,64 +191,54 @@ export default function AdminMembers() {
                 <button onClick={() => setIsModalOpen(false)} className="text-carbon-400 hover:text-white"><X className="w-5 h-5" /></button>
               </div>
 
-              {/* Profile header */}
               <div className="flex items-center gap-4 mb-6 pb-6 border-b border-carbon-800">
-                <div className="w-16 h-16 rounded-full bg-gradient-apex flex items-center justify-center">
-                  <span className="font-bold text-white text-xl">{viewingMember.firstName[0]}{viewingMember.lastName[0]}</span>
+                <div className="w-16 h-16 rounded-full bg-gradient-apex flex items-center justify-center overflow-hidden">
+                  {viewingMember.avatar_url ? (
+                    <img src={viewingMember.avatar_url} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="font-bold text-white text-xl">
+                      {(viewingMember.first_name || '?')[0]}{(viewingMember.last_name || '?')[0]}
+                    </span>
+                  )}
                 </div>
                 <div>
-                  <h3 className="font-display text-lg text-white">{viewingMember.firstName} {viewingMember.lastName}</h3>
-                  <Badge variant={statusColors[viewingMember.status]}>
-                    {viewingMember.status === 'active' ? 'Actif' : viewingMember.status === 'suspended' ? 'Suspendu' : 'Expiré'}
+                  <h3 className="font-display text-lg text-white">{viewingMember.first_name} {viewingMember.last_name}</h3>
+                  <Badge variant={statusColors[viewingMember.subscription_status] || 'neutral'}>
+                    {viewingMember.subscription_status === 'active' ? 'Actif' : viewingMember.subscription_status === 'suspended' ? 'Suspendu' : 'Non défini'}
                   </Badge>
                 </div>
               </div>
 
-              {/* Contact info */}
               <div className="space-y-3 mb-6">
                 <div className="flex items-center gap-3 text-carbon-300">
                   <Mail className="w-4 h-4 text-carbon-500" />
                   <span>{viewingMember.email}</span>
                 </div>
-                <div className="flex items-center gap-3 text-carbon-300">
-                  <Phone className="w-4 h-4 text-carbon-500" />
-                  <span>{viewingMember.phone}</span>
-                </div>
+                {viewingMember.phone && (
+                  <div className="flex items-center gap-3 text-carbon-300">
+                    <Phone className="w-4 h-4 text-carbon-500" />
+                    <span>{viewingMember.phone}</span>
+                  </div>
+                )}
                 <div className="flex items-center gap-3 text-carbon-300">
                   <Calendar className="w-4 h-4 text-carbon-500" />
-                  <span>Inscrit le {viewingMember.joinDate}</span>
+                  <span>Inscrit le {new Date(viewingMember.created_at).toLocaleDateString('fr-FR')}</span>
                 </div>
               </div>
 
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-4 mb-6">
-                <div className="text-center p-3 bg-carbon-800/30 rounded-lg">
-                  <p className="font-display text-xl text-white">{viewingMember.totalVisits}</p>
-                  <p className="text-xs text-carbon-400">Visites</p>
-                </div>
-                <div className="text-center p-3 bg-carbon-800/30 rounded-lg">
-                  <p className="font-display text-xl text-white">{getClubName(viewingMember.club).split(' ')[1]}</p>
-                  <p className="text-xs text-carbon-400">Club</p>
-                </div>
-                <div className="text-center p-3 bg-carbon-800/30 rounded-lg">
-                  <p className="font-display text-xl text-white capitalize">{viewingMember.subscription}</p>
-                  <p className="text-xs text-carbon-400">Formule</p>
-                </div>
-              </div>
-
-              {/* Actions */}
               <div className="space-y-3">
                 <div>
                   <label className="label">Modifier l'abonnement</label>
-                  <select className="select" value={viewingMember.subscription}
+                  <select className="select" value={viewingMember.subscription_type || ''}
                     onChange={(e) => handleSubscriptionChange(viewingMember.id, e.target.value)}>
-                    <option value="essential">Essential - 39,90€/mois</option>
-                    <option value="premium">Premium - 69,90€/mois</option>
-                    <option value="elite">Elite - 149,90€/mois</option>
+                    <option value="">Non défini</option>
+                    <option value="essential">Essential</option>
+                    <option value="premium">Premium</option>
+                    <option value="elite">Elite</option>
                   </select>
                 </div>
                 <div className="flex gap-3 pt-4">
-                  {viewingMember.status === 'active' ? (
+                  {viewingMember.subscription_status === 'active' ? (
                     <Button variant="secondary" onClick={() => handleStatusChange(viewingMember.id, 'suspended')} className="flex-1">
                       <UserX className="w-4 h-4" /> Suspendre
                     </Button>
