@@ -8,7 +8,6 @@ export function AdminProvider({ children }) {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   
-  // Real data from Supabase
   const [members, setMembers] = useState([])
   const [coaches, setCoaches] = useState([])
   const [classes, setClasses] = useState([])
@@ -25,7 +24,6 @@ export function AdminProvider({ children }) {
     activePromosCount: 0
   })
 
-  // Mock data kept for non-connected features
   const [contactRequests] = useState([])
   const [promotions] = useState([])
   const [clubs] = useState([
@@ -50,18 +48,17 @@ export function AdminProvider({ children }) {
         if (profile?.role === 'admin') {
           setAdmin(profile)
           setIsAdminAuthenticated(true)
-          await fetchDashboardData()
+          fetchDashboardData() // Sans await
         }
       }
     } catch (error) {
       console.error('Erreur auth admin:', error)
     } finally {
-      setIsLoading(false)
+      setIsLoading(false) // Toujours false
     }
   }
 
   const fetchDashboardData = async () => {
-    // Membres réels
     const { data: membersData } = await supabase
       .from('profiles')
       .select('*')
@@ -77,20 +74,15 @@ export function AdminProvider({ children }) {
       }))
     }
 
-    // Coachs réels
     const { data: coachesData } = await supabase
       .from('coaches')
       .select('*')
 
     if (coachesData) {
       setCoaches(coachesData)
-      setSupabaseStats(prev => ({
-        ...prev,
-        coachesCount: coachesData.length
-      }))
+      setSupabaseStats(prev => ({ ...prev, coachesCount: coachesData.length }))
     }
 
-    // Cours réels
     const { data: coursesData } = await supabase
       .from('courses')
       .select('*, coaches(first_name, last_name)')
@@ -104,7 +96,6 @@ export function AdminProvider({ children }) {
       }))
     }
 
-    // Réservations du mois
     const firstDay = new Date()
     firstDay.setDate(1)
     const { count: bookingsCount } = await supabase
@@ -113,16 +104,16 @@ export function AdminProvider({ children }) {
       .eq('status', 'confirmed')
       .gte('date', firstDay.toISOString().split('T')[0])
 
-    if (bookingsCount) {
+    if (bookingsCount && coursesData?.length) {
       setSupabaseStats(prev => ({
         ...prev,
-        fillRate: Math.min(Math.round((bookingsCount / (coursesData?.length * 30 * 30)) * 100), 100)
+        fillRate: Math.min(Math.round((bookingsCount / (coursesData.length * 30 * 30)) * 100), 100)
       }))
     }
   }
 
   const adminLogin = async (email, password) => {
-    setIsLoading(true)
+    // Ne pas mettre isLoading à true ici pour éviter le bug de navigation
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) throw error
@@ -140,13 +131,11 @@ export function AdminProvider({ children }) {
 
       setAdmin(profile)
       setIsAdminAuthenticated(true)
-      await fetchDashboardData()
+      fetchDashboardData() // Sans await
 
       return { success: true }
     } catch (error) {
       return { success: false, error: error.message }
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -156,10 +145,8 @@ export function AdminProvider({ children }) {
     setIsAdminAuthenticated(false)
   }
 
-  // Stats combinées Supabase
   const getStats = () => supabaseStats
 
-  // Coach Management
   const updateCoach = async (coachId, updates) => {
     const { error } = await supabase.from('coaches').update(updates).eq('id', coachId)
     if (!error) await fetchDashboardData()
@@ -178,7 +165,6 @@ export function AdminProvider({ children }) {
     return { success: !error }
   }
 
-  // Class Management
   const updateClass = async (classId, updates) => {
     const { error } = await supabase.from('courses').update(updates).eq('id', classId)
     if (!error) await fetchDashboardData()
@@ -197,22 +183,15 @@ export function AdminProvider({ children }) {
     return { success: !error }
   }
 
-  // Member Management
   const updateMember = async (memberId, updates) => {
     const { error } = await supabase.from('profiles').update(updates).eq('id', memberId)
     if (!error) await fetchDashboardData()
     return { success: !error }
   }
 
-  const suspendMember = async (memberId) => {
-    return updateMember(memberId, { subscription_status: 'suspended' })
-  }
+  const suspendMember = async (memberId) => updateMember(memberId, { subscription_status: 'suspended' })
+  const activateMember = async (memberId) => updateMember(memberId, { subscription_status: 'active' })
 
-  const activateMember = async (memberId) => {
-    return updateMember(memberId, { subscription_status: 'active' })
-  }
-
-  // Mock functions kept for compatibility
   const updateClub = async () => ({ success: true })
   const addClub = async () => ({ success: true })
   const deleteClub = async () => ({ success: true })
