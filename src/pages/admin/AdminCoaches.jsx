@@ -93,7 +93,7 @@ export default function AdminCoaches() {
   }
 
   const handleSpecialties = (value) => {
-    const arr = value.split(',').map(s => s.trim()).filter(Boolean)
+    const arr = value.split(',').map(s => s.trim().toLowerCase()).filter(Boolean)
     setFormData(p => ({ ...p, specialties: arr }))
   }
 
