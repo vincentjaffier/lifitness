@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Search, Edit2, Trash2, Phone, Mail, X } from 'lucide-react'
+import { Plus, Search, Edit2, Trash2, Phone, Mail, X, CheckCircle, XCircle } from 'lucide-react'
 import { useAdmin } from '../../context/AdminContext'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
@@ -11,9 +11,16 @@ export default function AdminCoaches() {
   const [searchQuery, setSearchQuery] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingCoach, setEditingCoach] = useState(null)
+  const [confirmDelete, setConfirmDelete] = useState(null)
+  const [toast, setToast] = useState(null)
   const [formData, setFormData] = useState({
     first_name: '', last_name: '', email: '', phone: '', specialties: [], club_id: 'lifitness-almadies'
   })
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type })
+    setTimeout(() => setToast(null), 3000)
+  }
 
   const filteredCoaches = coaches.filter(coach => {
     const fullName = `${coach.first_name || ''} ${coach.last_name || ''}`.toLowerCase()
@@ -41,17 +48,29 @@ export default function AdminCoaches() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (editingCoach) {
-      await updateCoach(editingCoach.id, formData)
-    } else {
-      await addCoach(formData)
-    }
+    const result = editingCoach
+      ? await updateCoach(editingCoach.id, formData)
+      : await addCoach(formData)
+
     setIsModalOpen(false)
+    if (result.success) {
+      showToast(editingCoach ? 'Coach modifié ✓' : 'Coach ajouté ✓', 'success')
+    } else {
+      showToast('Erreur lors de l\'opération', 'error')
+    }
   }
 
-  const handleDelete = async (coachId) => {
-    if (window.confirm('Supprimer ce coach ?')) {
-      await deleteCoach(coachId)
+  const handleDelete = async (coach) => {
+    setConfirmDelete(coach)
+  }
+
+  const confirmDeleteCoach = async () => {
+    const result = await deleteCoach(confirmDelete.id)
+    setConfirmDelete(null)
+    if (result.success) {
+      showToast('Coach supprimé', 'error')
+    } else {
+      showToast('Erreur lors de la suppression', 'error')
     }
   }
 
@@ -64,6 +83,36 @@ export default function AdminCoaches() {
 
   return (
     <div className="space-y-6">
+
+      {/* Toast */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
+            className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-6 py-4 rounded-2xl shadow-xl ${toast.type === 'success' ? 'bg-success-500 text-white' : 'bg-red-500 text-white'}`}>
+            {toast.type === 'success' ? <CheckCircle className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
+            <span className="font-medium">{toast.message}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Modal confirmation suppression */}
+      <AnimatePresence>
+        {confirmDelete && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-carbon-950/80">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+              className="card p-6 w-full max-w-sm text-center">
+              <h3 className="font-display text-lg text-white mb-2">Supprimer ce coach ?</h3>
+              <p className="text-carbon-400 mb-6">{confirmDelete.first_name} {confirmDelete.last_name} sera définitivement supprimé.</p>
+              <div className="flex gap-3">
+                <Button variant="secondary" onClick={() => setConfirmDelete(null)} className="flex-1">Annuler</Button>
+                <Button onClick={confirmDeleteCoach} className="flex-1 bg-red-500 hover:bg-red-600">Supprimer</Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl text-white mb-1">Gestion des coachs</h1>
@@ -125,7 +174,7 @@ export default function AdminCoaches() {
               <button onClick={() => openModal(coach)} className="flex-1 btn-secondary btn-sm justify-center">
                 <Edit2 className="w-4 h-4" /> Modifier
               </button>
-              <button onClick={() => handleDelete(coach.id)} className="btn-ghost btn-sm text-red-400">
+              <button onClick={() => handleDelete(coach)} className="btn-ghost btn-sm text-red-400">
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>
@@ -133,6 +182,7 @@ export default function AdminCoaches() {
         ))}
       </div>
 
+      {/* Modal ajout/modification */}
       <AnimatePresence>
         {isModalOpen && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -151,11 +201,11 @@ export default function AdminCoaches() {
                 </div>
                 <Input type="email" label="Email" value={formData.email} onChange={(e) => setFormData(p => ({ ...p, email: e.target.value }))} />
                 <Input type="tel" label="Téléphone" value={formData.phone} onChange={(e) => setFormData(p => ({ ...p, phone: e.target.value }))} />
-                <Input 
-                  label="Spécialités (séparées par des virgules)" 
+                <Input
+                  label="Spécialités (séparées par des virgules)"
                   value={Array.isArray(formData.specialties) ? formData.specialties.join(', ') : ''}
-                  onChange={(e) => handleSpecialties(e.target.value)} 
-                  required 
+                  onChange={(e) => handleSpecialties(e.target.value)}
+                  required
                 />
                 <div>
                   <label className="label">Club</label>
