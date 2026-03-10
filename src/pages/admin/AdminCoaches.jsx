@@ -14,7 +14,7 @@ export default function AdminCoaches() {
   const [confirmDelete, setConfirmDelete] = useState(null)
   const [toast, setToast] = useState(null)
   const [formData, setFormData] = useState({
-    first_name: '', last_name: '', email: '', phone: '', specialties: [], club_id: 'lifitness-almadies'
+    first_name: '', last_name: '', email: '', phone: '', specialties: [], club_id: []
   })
 
   const showToast = (message, type = 'success') => {
@@ -37,17 +37,30 @@ export default function AdminCoaches() {
         email: coach.email || '',
         phone: coach.phone || '',
         specialties: coach.specialties || [],
-        club_id: coach.club_id || 'lifitness-almadies'
+        club_id: Array.isArray(coach.club_id) ? coach.club_id : [coach.club_id].filter(Boolean)
       })
     } else {
       setEditingCoach(null)
-      setFormData({ first_name: '', last_name: '', email: '', phone: '', specialties: [], club_id: 'lifitness-almadies' })
+      setFormData({ first_name: '', last_name: '', email: '', phone: '', specialties: [], club_id: [] })
     }
     setIsModalOpen(true)
   }
 
+  const handleClubToggle = (clubId, checked) => {
+    setFormData(p => ({
+      ...p,
+      club_id: checked
+        ? [...p.club_id, clubId]
+        : p.club_id.filter(id => id !== clubId)
+    }))
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (formData.club_id.length === 0) {
+      showToast('Sélectionnez au moins un club', 'error')
+      return
+    }
     const result = editingCoach
       ? await updateCoach(editingCoach.id, formData)
       : await addCoach(formData)
@@ -74,7 +87,10 @@ export default function AdminCoaches() {
     }
   }
 
-  const getClubName = (clubId) => clubs.find(c => c.id === clubId)?.name || clubId
+  const getClubNames = (clubId) => {
+    const ids = Array.isArray(clubId) ? clubId : [clubId].filter(Boolean)
+    return ids.map(id => clubs.find(c => c.id === id)?.name || id).join(', ')
+  }
 
   const handleSpecialties = (value) => {
     const arr = value.split(',').map(s => s.trim()).filter(Boolean)
@@ -165,9 +181,11 @@ export default function AdminCoaches() {
             </div>
 
             <div className="flex flex-wrap gap-1 mb-4">
-              <span className="text-xs bg-carbon-800 text-carbon-300 px-2 py-1 rounded">
-                {getClubName(coach.club_id)}
-              </span>
+              {(Array.isArray(coach.club_id) ? coach.club_id : [coach.club_id]).filter(Boolean).map(id => (
+                <span key={id} className="text-xs bg-carbon-800 text-carbon-300 px-2 py-1 rounded">
+                  {clubs.find(c => c.id === id)?.name || id}
+                </span>
+              ))}
             </div>
 
             <div className="flex gap-2 pt-4 border-t border-carbon-800">
@@ -208,12 +226,20 @@ export default function AdminCoaches() {
                   required
                 />
                 <div>
-                  <label className="label">Club</label>
-                  <select className="select" value={formData.club_id} onChange={(e) => setFormData(p => ({ ...p, club_id: e.target.value }))}>
+                  <label className="label">Club(s)</label>
+                  <div className="space-y-2">
                     {clubs.map(club => (
-                      <option key={club.id} value={club.id}>{club.name}</option>
+                      <label key={club.id} className="flex items-center gap-3 p-3 bg-carbon-800/30 rounded-lg cursor-pointer hover:bg-carbon-800/50">
+                        <input
+                          type="checkbox"
+                          checked={formData.club_id.includes(club.id)}
+                          onChange={(e) => handleClubToggle(club.id, e.target.checked)}
+                          className="w-4 h-4 accent-apex-500"
+                        />
+                        <span className="text-white text-sm">{club.name}</span>
+                      </label>
                     ))}
-                  </select>
+                  </div>
                 </div>
                 <div className="flex gap-3 pt-4">
                   <Button type="button" variant="secondary" onClick={() => setIsModalOpen(false)} className="flex-1">Annuler</Button>
